@@ -1,0 +1,34 @@
+# BrainShared sync configuration
+# Copy to _sync.conf and fill in your values.
+# This file is committed to your private Brain — the remote URL is not sensitive.
+
+# GitHub remote for the shared Brain repo
+SHARED_BRAIN_REMOTE="git@github.com:YOUR_ORG/BrainShared.git"
+
+# Branch on BrainShared to pull from
+SHARED_BRAIN_BRANCH="main"
+
+# GitHub org/user for creating shared project repos
+SHARED_ORG="YOUR_ORG"
+
+# Your identity (used in commit messages)
+SYNC_IDENTITY="YOUR_NAME"
+
+# Remote commits — for comparing against BrainShared state
+LAST_PUSH_COMMIT=""
+LAST_PUSH_DATE=""
+LAST_PULL_COMMIT=""
+LAST_PULL_DATE=""
+
+# Local commits — for git diff within the private Brain repo
+LAST_LOCAL_PUSH_COMMIT=""
+
+# Per-project shared repos
+# Format: SLUG|REMOTE_URL|LAST_PUSH_COMMIT|LAST_PUSH_DATE|LAST_PULL_COMMIT|LAST_PULL_DATE
+# Fields are updated automatically by /push-projectshared and /pull-projectshared.
+# Example:
+# SHARED_PROJECTS=(
+#   "myproject|git@github.com:YOUR_ORG/MyProject.git|abc1234|2026-01-15|abc1234|2026-01-15"
+# )
+SHARED_PROJECTS=()
+

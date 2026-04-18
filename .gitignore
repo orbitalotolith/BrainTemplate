@@ -1,0 +1,25 @@
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.tmp
+*.log
+*.swp
+*.swo
+*~
+
+# Obsidian workspace state (machine-specific)
+.obsidian/workspace*
+.obsidian/cache
+
+# Claude Code runtime
+.claude/
+
+# Python artifacts
+__pycache__/
+*.pyc
+
+# Binary blobs
+*.bin
+
+# Machine-local sync state
+_sync.conf

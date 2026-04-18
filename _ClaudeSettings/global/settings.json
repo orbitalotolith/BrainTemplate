@@ -1,0 +1,77 @@
+{
+  "cleanupPeriodDays": 15,
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "includeGitInstructions": false,
+  "permissions": {
+    "allow": [
+      "Bash(curl:*)",
+      "Bash(npm run dev:*)",
+      "Bash(tree:*)",
+      "Bash(sudo tee:*)",
+      "Bash(sudo apt update:*)",
+      "Bash(sudo apt install:*)",
+      "Bash(chmod:*)",
+      "Bash(python3:*)",
+      "Bash(pip3 install:*)",
+      "Bash(node -e:*)",
+      "Bash(npx tsc:*)",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(lsof:*)",
+      "Bash(netstat:*)",
+      "Bash(kill:*)",
+      "Bash(npm run:*)",
+      "Bash(pgrep:*)",
+      "Bash(git mv:*)",
+      "Bash(echo:*)",
+      "Bash(npm --prefix frontend run build)",
+      "Bash(xargs kill:*)",
+      "Bash(ls:*)",
+      "Bash(xargs cat:*)",
+      "Bash(ln:*)",
+      "Bash(npm audit fix:*)",
+      "Bash(npm install)",
+      "Bash(git add:*)",
+      "Bash(git reset:*)",
+      "Bash(git commit:*)",
+      "Bash(docker compose up:*)",
+      "Bash(sudo apt-get install:*)",
+      "Bash(ss:*)",
+      "Bash(source:*)",
+      "Bash(python:*)",
+      "Bash(/home/chum/Development/Mercana/imageAnnotation/release/src/backend/ml/venv/bin/python:*)",
+      "Bash(xargs:*)",
+      "Bash(venv/bin/python:*)",
+      "Bash(cd:*)",
+      "Bash(./node_modules/.bin/tsc --noEmit)"
+    ],
+    "defaultMode": "plan"
+  },
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": false
+  },
+  "outputStyle": "Concise and direct. Lead with the answer. No filler or preamble.",
+  "effortLevel": "medium",
+  "fastModePerSessionOptIn": true,
+  "promptSuggestionEnabled": false,
+  "autoUpdatesChannel": "stable",
+  "minimumVersion": "2.1.85",
+  "voiceEnabled": true,
+  "defaultView": "transcript",
+  "showThinkingSummaries": true,
+  "skipDangerousModePermissionPrompt": true,
+  "mcpServers": {
+    "github": {
+      "type": "stdio",
+      "command": "gh",
+      "args": [
+        "mcp"
+      ]
+    }
+  }
+}

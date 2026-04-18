@@ -1,0 +1,1 @@
+_ClaudeSettings/global/CLAUDE.md

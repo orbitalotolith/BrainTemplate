@@ -1,0 +1,20 @@
+{
+  "showUnsupportedFiles": true,
+  "userIgnoreFilters": [
+    "dist",
+    "node_modules",
+    "target",
+    "build",
+    "__pycache__",
+    ".git",
+    "src-tauri/gen",
+    "DerivedData",
+    "*.xcodeproj",
+    "claude_skills"
+  ],
+  "readableLineLength": false,
+  "strictLineBreaks": true,
+  "propertiesInDocument": "source",
+  "showLineNumber": true,
+  "rightToLeft": false
+}
