@@ -516,7 +516,7 @@ Skip `/folder-audit` if the brain check passes clean and you haven't made struct
 
 3. **Content audit skills** — six independent read-only audits, each covering one persistence tier. `/profile-audit` (Profile vs memories), `/memory-audit` (scope, dedup, quality, absorption), `/kb-audit` (KnowledgeBase freshness), `/devlog-audit` (DevLog quality), `/status-audit` (_Status.md and session freshness), `/vault-consistency-audit` (cross-project consistency, symlinks, doc drift). Run individually as needed — no orchestrator.
 
-4. **`/save-session`** — captures current session context to `session.md` and syncs global memories from `~/.claude/projects/` back to `_Memory/brain/` in Brain git. Project memories are symlink-based and need no copy step.
+4. **`/save-session`** — captures current session context to `session.md` and syncs global memories from `~/.claude/projects/` back to `_Memory/brain/` in Brain git. Project memories are symlink-based and need no copy step. All writes to `_Status.md`, `_KnowledgeBase/`, `_Memory/`, `_Profile/`, and `_Agents/` are delegated to `/capture`, which is also directly invokable mid-session for the same routing.
 
 ---
 

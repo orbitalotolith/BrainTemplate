@@ -36,6 +36,8 @@ Quick reference for workflows and skills. For vault structure and architecture, 
 
 **Content audit:** `/profile-audit` → `/memory-audit` → `/kb-audit` → `/devlog-audit` → `/status-audit` → `/vault-consistency-audit`
 
+**Mid-session capture:** `/capture` — write a surfaced gotcha, decision, KB entry, memory, profile update, or Oto note to its canonical destination. Also runs silently from `/save-session` and `/save-lightweight`.
+
 **Apply an audit's findings:** After any `*-audit` skill produces findings, say `apply the <name>-audit findings` — Claude walks through each interactively with preview-then-confirm. For `/status-audit` specifically, cleanup routes entries across the project knowledge hierarchy: short conventions to `_ClaudeSettings/<slug>/CLAUDE.md`, architectural rationale to `_DevLog/<slug>/architecture.md` (not auto-loaded), resolved Gotchas to `_DevLog/<slug>/archive.md`, cross-project quirks to `_KnowledgeBase/`. See `_HowThisWorks.md` → "Project Knowledge Hierarchy" for the full picture.
 
 **Skill development:** brainstorm → write plan → `/writing-skills` workflow → `/skill-audit` → `/save-session` → `/commit`
