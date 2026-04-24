@@ -7,9 +7,8 @@ Thumbs.db
 *.swo
 *~
 
-# Obsidian workspace state (machine-specific)
-.obsidian/workspace*
-.obsidian/cache
+# Obsidian (machine-specific local settings)
+.obsidian/
 
 # Claude Code runtime
 .claude/
