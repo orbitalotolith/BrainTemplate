@@ -17,7 +17,7 @@ When editing a file reached through a multi-level symlink chain, an intermediate
 ```
 CodeLiteracy/CLAUDE.md                              (symlink, tracked by repo)
   → project_files/brain/CLAUDE.md                   (symlink, in gitignored brain/)
-    → BrainOtolith/_ClaudeSettings/codeliteracy/CLAUDE.md  (real file, tracked by Brain)
+    → <Brain>/_ClaudeSettings/<slug>/CLAUDE.md            (real file, tracked by Brain)
 ```
 
 After Edit calls targeting the root path, `project_files/brain/CLAUDE.md` became a 2369-byte regular file with the edited content, while the Brain-side real file retained the old content. Two resulting problems:

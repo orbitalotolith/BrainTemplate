@@ -769,7 +769,7 @@ All are report-only — they present findings but do not modify files. Fix issue
 | `lowercase` | System/gitignored directories in code repos | `project_files/`, `brain/` |
 | `kebab-case` | Slug directories and session files | `brain/session.md`, `myproject/session.md` |
 | No spaces | All folder and file names | `_DevLog/`, `_ActiveSessions/` |
-| `<Brain>/` | Generic Brain name in shared docs (prose, diagrams) — never hardcode `BrainOtolith` etc. | `<Brain>/_Skills/`, `<Brain>/_Workbench/` |
+| `<Brain>/` | Generic Brain name in shared docs (prose, diagrams) — never hardcode a specific Brain name. | `<Brain>/_Skills/`, `<Brain>/_Workbench/` |
 | `$BRAIN_ROOT` | Generic Brain path in runnable code/scripts in shared docs | `bash $BRAIN_ROOT/_setup.sh` |
 
 ---

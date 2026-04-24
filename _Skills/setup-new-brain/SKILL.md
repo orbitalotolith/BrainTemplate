@@ -13,7 +13,7 @@ Bootstraps a fresh BrainTemplate clone into a fully-configured private Brain. Id
 ## When to use
 
 - Just cloned `BrainTemplate` on a new machine.
-- Adding a new partner identity (e.g. `chum` joining the existing `otolith` + `rogue` partnership).
+- Adding a new partner identity (e.g. a third partner joining an existing two-machine partnership).
 
 If you already have a working Brain on this machine and want to pull updates, use `/pull-brainshared` instead.
 
@@ -152,7 +152,7 @@ echo "Copied. Review _Agents/<identity-slug>/ and edit any other identity-specif
 ```bash
 SSH_HOST="<user-supplied>"   # e.g. <user>@my-mac.local
 SRC_IDENTITY="<user-supplied>"  # e.g. oto
-SRC_PATH="<user-supplied path on remote, default ~/Development/BrainOtolith/_Agents/$SRC_IDENTITY>"
+SRC_PATH="<user-supplied path on remote, default ~/Development/Brain<SrcName>/_Agents/$SRC_IDENTITY>"
 
 # Validate SSH first; if it fails, fall back to option 1 with a notice
 if ! ssh -o BatchMode=yes -o ConnectTimeout=5 "$SSH_HOST" true 2>/dev/null; then

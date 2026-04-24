@@ -1,6 +1,6 @@
 ---
 name: capture
-description: Use when new knowledge surfaces mid-session and needs to be written to _Status.md, _KnowledgeBase/, _Memory/, _Profile/, or _Agents/oto/ — also triggered after root-causing a bug, making an architectural decision, discovering a platform quirk, or hearing user-preference/feedback. Invoked directly by the user or silently by /save-session and /save-lightweight.
+description: Use when new knowledge surfaces mid-session and needs to be written to _Status.md, _KnowledgeBase/, _Memory/, _Profile/, or _Agents/<identity>/ — also triggered after root-causing a bug, making an architectural decision, discovering a platform quirk, or hearing user-preference/feedback. Invoked directly by the user or silently by /save-session and /save-lightweight.
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Bash, Read, Write, Edit, AskUserQuestion
@@ -119,7 +119,7 @@ In silent mode, rule d is not available — if slug cannot be resolved, fail lou
 
 #### memory
 
-- **Dest:** `$BRAIN/_Memory/<slug>/<subtype>_<name>.md`. `<slug>` defaults to resolved slug; `brain` holds cross-project entries. The directory is symlinked to `~/.claude/projects/-Users-otolith-Development-BrainOtolith/memory/` (for brain) or to code-repo Claude memory (for other projects).
+- **Dest:** `$BRAIN/_Memory/<slug>/<subtype>_<name>.md`. `<slug>` defaults to resolved slug; `brain` holds cross-project entries. The directory is symlinked to `~/.claude/projects/<encoded-brain-path>/memory/` (for brain) or to code-repo Claude memory (for other projects).
 - **Subtype resolution:**
   - Interactive: if `--subtype` absent, `AskUserQuestion` with four options.
   - Silent: `--subtype` required; fail loud if absent.

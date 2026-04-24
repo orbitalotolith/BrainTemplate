@@ -16,6 +16,11 @@ pass() { echo "  OK    $1"; PASS=$((PASS + 1)); }
 warn() { echo "  WARN  $1"; WARN=$((WARN + 1)); }
 fail() { echo "  FAIL  $1"; FAIL=$((FAIL + 1)); }
 
+# Portable YYYY-MM-DD to epoch. GNU date (Linux, Git Bash) uses -d; BSD date (macOS) uses -j -f.
+parse_date_epoch() {
+  date -d "$1" +%s 2>/dev/null || date -j -f "%Y-%m-%d" "$1" +%s 2>/dev/null || echo 0
+}
+
 # --- Parse project registry ---
 
 if [ ! -f "$CONF" ]; then
@@ -519,7 +524,7 @@ if [ -f "$SYNC_CONF" ]; then
   fi
 
   if [ -n "${LAST_PUSH_DATE:-}" ]; then
-    days_since_push=$(( ( $(date +%s) - $(date -j -f "%Y-%m-%d" "$LAST_PUSH_DATE" +%s 2>/dev/null || echo 0) ) / 86400 ))
+    days_since_push=$(( ( $(date +%s) - $(parse_date_epoch "$LAST_PUSH_DATE") ) / 86400 ))
     if [ "$days_since_push" -gt 7 ] 2>/dev/null; then
       warn "Last push was $days_since_push days ago ($LAST_PUSH_DATE)"
     else
@@ -530,7 +535,7 @@ if [ -f "$SYNC_CONF" ]; then
   fi
 
   if [ -n "${LAST_PULL_DATE:-}" ]; then
-    days_since_pull=$(( ( $(date +%s) - $(date -j -f "%Y-%m-%d" "$LAST_PULL_DATE" +%s 2>/dev/null || echo 0) ) / 86400 ))
+    days_since_pull=$(( ( $(date +%s) - $(parse_date_epoch "$LAST_PULL_DATE") ) / 86400 ))
     if [ "$days_since_pull" -gt 7 ] 2>/dev/null; then
       warn "Last pull was $days_since_pull days ago ($LAST_PULL_DATE)"
     else
