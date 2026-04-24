@@ -9,6 +9,6 @@ Violations are errors — the skill or the contract must be updated to resolve t
 | 2  | Must never overwrite existing handoff content — append or update in place only |
 | 3  | Must never modify another identity's section in universal format files |
 | 4  | Must derive code state from git commands only, never from conversation context or session memory |
-| 5  | Must not perform knowledge capture (no KB, memory, profile, CLAUDE.md, _Status.md writes) |
+| 5  | Must not perform knowledge capture beyond gotcha capture via `/capture` (interactive mode). No KB, memory, profile, CLAUDE.md writes; `_Status.md` writes are limited to Recent Sessions (step 4b) and gotchas via `/capture` (step 4c). |
 | 6  | Must write timestamp only after session file is successfully updated |
 | 7  | Must only write to session and status files matching the resolved slug — never to files for a different project |

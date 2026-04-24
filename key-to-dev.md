@@ -36,6 +36,8 @@ Quick reference for workflows and skills. For vault structure and architecture, 
 
 **Content audit:** `/profile-audit` → `/memory-audit` → `/kb-audit` → `/devlog-audit` → `/status-audit` → `/vault-consistency-audit`
 
+**Apply an audit's findings:** After any `*-audit` skill produces findings, say `apply the <name>-audit findings` — Claude walks through each interactively with preview-then-confirm. For `/status-audit` specifically, cleanup routes entries across the project knowledge hierarchy: short conventions to `_ClaudeSettings/<slug>/CLAUDE.md`, architectural rationale to `_DevLog/<slug>/architecture.md` (not auto-loaded), resolved Gotchas to `_DevLog/<slug>/archive.md`, cross-project quirks to `_KnowledgeBase/`. See `_HowThisWorks.md` → "Project Knowledge Hierarchy" for the full picture.
+
 **Skill development:** brainstorm → write plan → `/writing-skills` workflow → `/skill-audit` → `/save-session` → `/commit`
 
 ### Sync
@@ -54,9 +56,7 @@ Quick reference for workflows and skills. For vault structure and architecture, 
 
 ### Setup
 
-**New machine:** clone Brain → `_setup.sh` → `_health-check.sh` → `/brain-check` → Obsidian setup
-
-**New partner:** set up Brain from BrainShared → `_setup.sh` → `/brain-check` → `/pull-brainshared`
+**New Brain (machine or partner):** clone BrainTemplate → `_setup.sh` → `/setup-new-brain`
 
 ---
 
@@ -138,6 +138,26 @@ BrainShared distributes skills, KnowledgeBase, templates, and global memories be
 
 ## New Machine Setup
 
-Tell Claude to "set up this machine" — it will clone Brain, run `_setup.sh` (creates symlinks and configures `~/.claude/`), and verify with `_health-check.sh`.
+Clone BrainTemplate (`<org>/BrainTemplate`), run `_setup.sh`, open Claude Code, run `/setup-new-brain`. The skill walks identity, persona, git remotes, and optional BrainShared collab. Works on macOS, Linux, and Windows.
+
+```bash
+git clone git@github.com:<org>/BrainTemplate.git ~/Development/Brain<Name>
+cd ~/Development/Brain<Name>
+bash _setup.sh
+# then in Claude Code: /setup-new-brain
+```
 
 Then open Obsidian, point it at the Brain directory, and enable plugins: Dataview, Templater, Obsidian Git.
+
+### Windows prerequisites
+
+`_setup.sh` and `_health-check.sh` are bash — on Windows, run them from **Git Bash** (ships with Git for Windows), not PowerShell or CMD.
+
+1. Git for Windows installed (provides Git Bash).
+2. **Developer Mode ON** (Settings → Privacy & security → For developers). Without this, symlinks silently fall back to copies and the vault breaks.
+3. `git config --global core.symlinks true` — so git respects symlinks in pulls/clones.
+4. SSH key registered with GitHub (for cloning the private Brain repo).
+
+Verify: open Claude Code, start a session in Brain, confirm skills load. If symlinks appear as copies in `~/.claude/`, Developer Mode isn't on.
+
+Known gotcha: `_health-check.sh` uses `date -j -f` (macOS-only) in one spot — non-blocking, but expect one warning on Windows/Linux until fixed.

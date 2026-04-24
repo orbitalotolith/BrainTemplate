@@ -46,7 +46,8 @@
       "Bash(xargs:*)",
       "Bash(venv/bin/python:*)",
       "Bash(cd:*)",
-      "Bash(./node_modules/.bin/tsc --noEmit)"
+      "Bash(./node_modules/.bin/tsc --noEmit)",
+      "Bash(date +%s > ~/.claude/last-session-save-timestamp)"
     ],
     "defaultMode": "plan"
   },
@@ -64,14 +65,5 @@
   "voiceEnabled": true,
   "defaultView": "transcript",
   "showThinkingSummaries": true,
-  "skipDangerousModePermissionPrompt": true,
-  "mcpServers": {
-    "github": {
-      "type": "stdio",
-      "command": "gh",
-      "args": [
-        "mcp"
-      ]
-    }
-  }
+  "skipDangerousModePermissionPrompt": true
 }

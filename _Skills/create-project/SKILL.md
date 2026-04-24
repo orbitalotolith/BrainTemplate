@@ -2,7 +2,7 @@
 name: create-project
 description: Use when creating a new development project or onboarding an existing project into the Brain vault. Run from anywhere under ~/Development/<Category>/.
 user-invocable: true
-disable-model-invocation: true
+disable-model-invocation: false
 allowed-tools: Bash, Read, Write, Edit, AskUserQuestion
 ---
 

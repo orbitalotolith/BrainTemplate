@@ -50,3 +50,47 @@ _Notes/**/_Status.md
 ```
 
 This prevents silent failures when project nesting depth changes.
+
+### `git merge` auto-stash fails through symlink boundaries; `git checkout --` still works
+**As of:** git 2.x (observed 2026-04-22)
+
+When merging with a dirty working tree, git internally runs `stash` to save state. If the tree contains tracked files whose paths traverse a symlinked directory, the stash fails with:
+
+```
+error: '<path>' is beyond a symbolic link
+fatal: Unable to process path <path>
+Cannot save the current worktree state
+fatal: stash failed
+```
+
+Common trigger: vault/note symlinks like `project_files/brain/DevLog -> /elsewhere/_DevLog/<slug>/` where git also has tracked blobs committed at `project_files/brain/DevLog/*.md` from a prior collab sync.
+
+Escape hatch: `git checkout -- <symlinked-path>` can restore those files through the symlink (it only writes the tracked blobs to their in-tree paths, doesn't traverse any directory). Clears the "D" deletions git is seeing. Then retry the merge.
+
+```bash
+# FAIL — stash can't traverse symlink
+git merge --no-ff feature
+# Cannot save the current worktree state
+# fatal: stash failed
+
+# RIGHT — restore tracked blobs, then merge
+git checkout -- project_files/brain/
+git merge --no-ff feature   # clean worktree now, no stash needed
+```
+
+### `git worktree remove` refuses worktrees with untracked files (including symlinks)
+**As of:** git 2.x
+
+`git worktree remove <path>` aborts with `fatal: '<path>' contains modified or untracked files, use --force to delete it` if the worktree has ANY untracked files — not just real files with data, but symlinks too. Common trigger: a worktree-local `.venv` symlink pointing to the main repo's venv (convention for sharing virtualenvs across worktrees).
+
+```bash
+# FAIL — won't remove due to untracked .venv symlink
+git worktree remove .worktrees/my-branch
+# fatal: '.worktrees/my-branch' contains modified or untracked files, use --force to delete it
+
+# RIGHT — rm the symlink first (removes the link, NOT its target), then remove the worktree
+rm .worktrees/my-branch/.venv
+git worktree remove .worktrees/my-branch
+```
+
+`--force` would also work but swallows any genuinely unexpected untracked work in the worktree. Explicit `rm` on known-safe paths keeps the safety net for real surprises.

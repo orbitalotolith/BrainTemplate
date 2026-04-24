@@ -455,48 +455,17 @@ Project context lives as real files in Brain. For collab repos, `/push-projectsh
 
 ### Partner Onboarding
 
-When a new partner joins:
+A new partner clones BrainTemplate (not BrainShared), runs `_setup.sh`, then invokes the `/setup-new-brain` skill in Claude Code. The skill walks identity (`SYNC_IDENTITY`, GitHub repo URL), persona scaffolding (default / copy-from-local-Brain / scp-from-another-machine), git remote wiring, and optional BrainShared collab — all idempotent and cross-platform (macOS, Linux, Windows via Git Bash).
 
-1. **Add collaborator** on the BrainShared GitHub repo (Settings → Collaborators)
+```bash
+git clone git@github.com:<org>/BrainTemplate.git ~/Development/Brain<Name>
+cd ~/Development/Brain<Name>
+bash _setup.sh
+# open Claude Code in this directory, then:
+/setup-new-brain
+```
 
-2. **Partner clones BrainShared** as their Brain bootstrap:
-   ```bash
-   git clone git@github.com:<org>/BrainShared.git ~/Development/Brain<Name>
-   cd ~/Development/Brain<Name>
-   ```
-
-3. **Run setup** (writes `BRAIN_ROOT` to shell config, creates `~/.claude/` symlinks):
-   ```bash
-   bash _setup.sh
-   ```
-
-4. **Create personal Brain structure** (directories not in BrainShared):
-   ```bash
-   mkdir -p _Workbench           # per-project scratch space (real directories)
-   mkdir -p _Profile
-   mkdir -p _ActiveSessions/_Parked
-   mkdir -p _DevLog
-   mkdir -p _Docs
-   touch _projects.conf
-   echo 'brain||Brain<Name>|' >> _projects.conf
-   ```
-
-5. **Configure sync**:
-   ```bash
-   cp _sync.conf.template _sync.conf
-   # Edit _sync.conf: set SHARED_ORG, SYNC_IDENTITY
-   ```
-
-6. **Set up private Brain git**:
-   ```bash
-   git remote add brainshared git@github.com:<org>/BrainShared.git
-   git remote set-url origin git@github.com:<owner>/Brain<Name>.git
-   git push -u origin main
-   ```
-
-7. **Create `_Profile/` files** — collaborate with the AI to capture identity, skills, and preferences
-
-8. **Verify**: `bash _health-check.sh`
+Before the BrainShared step, **add the new partner as a collaborator** on the BrainShared GitHub repo (Settings → Collaborators). The skill will pause and remind.
 
 After onboarding, the partner uses the same daily workflow: `/start-session` → work → `/commit` → `/save-session`. Shared improvements flow through `/push-brainshared` and `/pull-brainshared`. For ongoing vault validation, use `/brain-check` (wraps `_setup.sh` + `_health-check.sh`).
 
@@ -642,7 +611,7 @@ Like `_ClaudeSettings/<slug>/CLAUDE.md` and `_Memory/<slug>/`, an agent's person
 
 ## _KnowledgeBase
 
-`<Brain>/_KnowledgeBase/` stores general technical knowledge that applies across projects and persists indefinitely. Not project-specific — those go in `_Status.md` Gotchas or project `CLAUDE.md`.
+`<Brain>/_KnowledgeBase/` stores general technical knowledge that applies across projects and persists indefinitely. Not project-specific — those go in `_Status.md` Gotchas, project `CLAUDE.md`, or `_DevLog/<slug>/architecture.md` (see next section).
 
 **Write to KB when you discover:**
 - Platform/tool bugs or quirks (IDEs, language toolchains, OS behaviors)
@@ -650,6 +619,36 @@ Like `_ClaudeSettings/<slug>/CLAUDE.md` and `_Memory/<slug>/`, an agent's person
 - Cross-project gotchas
 
 **File format:** Frontmatter with `tags: [reference, <domain>]`, topic heading, sections, Gotchas list. Each entry includes version context ("as of Tool v16", "library 0.15+") so staleness can be judged later.
+
+---
+
+## Project Knowledge Hierarchy
+
+Per-project knowledge lives in four files, each with a distinct token-cost tier and a distinct job. Deciding where a piece of information belongs is a token-budget decision: the first two load every session, the last two do not.
+
+| File | Auto-loaded? | Holds | Example |
+|------|--------------|-------|---------|
+| `_ClaudeSettings/<slug>/CLAUDE.md` | ✅ Every session | Short, load-bearing conventions new code must follow | "IPC: ZMQ tasks 5555, events 5556, service proxy 5557. JSON payloads, strict send/recv alternation via asyncio.Lock" |
+| `_ActiveSessions/<slug>/_Status.md` | ✅ Every session (via `project_files/brain/` symlink) | Current focus + in-flight decisions that could still change + project-specific gotchas | Recent `(YYYY-MM-DD)` decisions where the outcome isn't settled; the `SessionManager.feed_event` invariant |
+| `_DevLog/<slug>/architecture.md` | ❌ On demand | Architectural choices with rationale — "why we chose X over Y" | "ZeroMQ from day one — avoids rewrite when V2 adds agent-to-agent messaging"; the tiered-routing pattern |
+| `_DevLog/<slug>/archive.md` | ❌ On demand | Retired Decisions and FIXED Gotchas — preserves provenance without clutter | `(2026-04-22 → archived 2026-04-22) (FIXED) …` |
+
+### The token-cost rule
+
+`CLAUDE.md` + `_Status.md` both load every session. If you're tempted to add a 3-paragraph design rationale to either, that cost multiplies across every future session. Instead:
+
+- **CLAUDE.md** is for one-liners you want the AI to know by default: port numbers, entry-point contracts, security invariants, naming rules. If you find yourself writing more than two sentences for a single entry, it probably belongs in `architecture.md`.
+- **`_Status.md` Active Decisions** is for dated, in-flight choices that haven't settled yet. Once a decision has been live for a couple of weeks and new code is built on top of it, either promote it (short form → CLAUDE.md, long form → architecture.md) or archive it.
+- **`architecture.md`** is a grouped narrative document — sections like "IPC & Async Foundation", "Blueprint Taxonomy", "Security Posture (V1)". Entries explain *why* a choice was made, so future refactors understand what they'd be giving up. Not indexed; partners open it when they're about to touch a related area.
+- **`archive.md`** is append-only. Entries preserve both the original date and the archive date: `(YYYY-MM-DD → archived YYYY-MM-DD) <original text>`. Use `## Decisions` and `## Gotchas` subheadings.
+
+### Caps (enforced by `/status-audit`)
+
+- Active Decisions: 25 max, each dated
+- Gotchas: 10 max, each dated, only "still biting" items
+- Recent Sessions: 5 max (auto-pruned by `/save-lightweight`)
+
+When `/status-audit` finds _Status.md over cap, the cleanup moves entries up the hierarchy: first try "delete" (code-derivable), then CLAUDE.md (short convention), then architecture.md (rationale worth preserving), then archive.md (historical but worth keeping).
 
 ---
 

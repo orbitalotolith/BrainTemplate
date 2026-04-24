@@ -57,7 +57,7 @@ Cross-project user preferences and feedback only. Not for project decisions. Glo
 ### 5. KnowledgeBase — `_KnowledgeBase/`
 General technical knowledge — platform bugs, framework quirks, cross-project gotchas. Not project-specific.
 
-Token budget per `/start-session`: ~1500–2500 tokens.
+Token budget per `/start-session`: ~2K for lean projects, scales up with `_Status.md` size — a project with many active decisions and gotchas may push 5–15K tokens. `/status-audit` flags when a project's Status exceeds caps (25 decisions / 10 gotchas) so the file stays manageable.
 
 ## Knowledge Base Rules
 

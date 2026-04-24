@@ -41,6 +41,20 @@ echo "-- Shell environment --"
 write_brain_root
 echo ""
 
+# --- Symlink helper ---
+
+# Create a symlink $dest → $src, replacing any existing real directory at $dest.
+# ln -sfn on an existing real directory creates the link INSIDE it rather than
+# replacing it, so we must rm -rf first. Directory targets only.
+safe_dir_symlink() {
+  local src="$1"
+  local dest="$2"
+  if [ -d "$dest" ] && [ ! -L "$dest" ]; then
+    rm -rf "$dest"
+  fi
+  ln -sfn "$src" "$dest"
+}
+
 # --- Read project registry ---
 
 # Parse _projects.conf: SLUG|CATEGORY|CODE_PATH|COLLAB
@@ -155,11 +169,7 @@ setup_claude() {
     local parent
     parent=$(dirname "$dest")
     mkdir -p "$parent"
-    # Replace real directory with symlink (or update existing symlink)
-    if [ -d "$dest" ] && [ ! -L "$dest" ]; then
-      rm -rf "$dest"
-    fi
-    ln -sfn "$src" "$dest"
+    safe_dir_symlink "$src" "$dest"
     echo "  ✓ $slug: memory → $src"
   done
 }
@@ -208,15 +218,95 @@ for i in "${!SLUGS[@]}"; do
   ln -sfn "$as_dir/session.md" "$brain_dir/session.md"
   ln -sfn "$as_dir/_Status.md" "$brain_dir/_Status.md"
 
-  ln -sfn "$BRAIN/_Memory/$slug" "$brain_dir/memory"
-  ln -sfn "$BRAIN/_DevLog/$slug" "$brain_dir/DevLog"
-  ln -sfn "$BRAIN/_Workbench/$slug" "$brain_dir/Workbench"
-  ln -sfn "$BRAIN/_Docs/$slug" "$brain_dir/_Docs"
+  safe_dir_symlink "$BRAIN/_Memory/$slug" "$brain_dir/memory"
+  safe_dir_symlink "$BRAIN/_DevLog/$slug" "$brain_dir/DevLog"
+  safe_dir_symlink "$BRAIN/_Workbench/$slug" "$brain_dir/Workbench"
+  safe_dir_symlink "$BRAIN/_Docs/$slug" "$brain_dir/_Docs"
 
   # Root CLAUDE.md → project_files/brain/CLAUDE.md
   ln -sfn "project_files/brain/CLAUDE.md" "$project/CLAUDE.md"
 
   echo "  ✓ $slug: project_files/brain/ (7 symlinks) + root CLAUDE.md"
+done
+
+# --- Collab repo git hooks (pre-push + post-merge) ---
+
+echo ""
+echo "-- Collab git hooks --"
+for i in "${!SLUGS[@]}"; do
+  slug="${SLUGS[$i]}"
+  collab="${COLLABS[$i]}"
+  code="${CODE_PATHS[$i]}"
+  [ "$collab" = "collab" ] || continue
+  [ "$slug" = "brain" ] && continue
+  project="$DEV/$code"
+  hooks_dir="$project/.git/hooks"
+  [ -d "$hooks_dir" ] || { echo "  ⊘ Skipped $slug (no .git/hooks)"; continue; }
+
+  # pre-push: block bare pushes; require /push-projectshared (sets ALLOW_COLLAB_PUSH=1)
+  cat > "$hooks_dir/pre-push" <<'HOOK'
+#!/bin/sh
+# Brain vault collab hook — installed by _setup.sh
+# Blocks bare git push on collab repos; forces use of /push-projectshared.
+if [ "$ALLOW_COLLAB_PUSH" != "1" ]; then
+  echo ""
+  echo "⚠️  Direct git push blocked on collab repo."
+  echo ""
+  echo "    This repo is registered as collab in _projects.conf."
+  echo "    Use /push-projectshared — it dereferences symlinks, commits,"
+  echo "    pushes, and restores symlinks safely."
+  echo ""
+  echo "    Override (only if you know what you're doing):"
+  echo "      ALLOW_COLLAB_PUSH=1 git push ..."
+  echo ""
+  exit 1
+fi
+HOOK
+  chmod 0755 "$hooks_dir/pre-push"
+
+  # post-merge: detect brain symlinks overwritten by real files after any pull/merge
+  cat > "$hooks_dir/post-merge" <<'HOOK'
+#!/bin/sh
+# Brain vault collab hook — installed by _setup.sh
+# Warns if project_files/brain/ symlinks were overwritten with real files.
+BRAIN_DIR="project_files/brain"
+[ -d "$BRAIN_DIR" ] || exit 0
+BROKEN=""
+for item in CLAUDE.md session.md _Status.md memory DevLog Workbench _Docs; do
+  target="$BRAIN_DIR/$item"
+  if [ -e "$target" ] && [ ! -L "$target" ]; then
+    BROKEN="$BROKEN $item"
+  fi
+done
+if [ -n "$BROKEN" ]; then
+  echo ""
+  echo "⚠️  Brain symlinks were overwritten by real files after this merge/pull:"
+  for b in $BROKEN; do echo "       - $BRAIN_DIR/$b"; done
+  echo ""
+  echo "    This is a collab repo. To fix: run /pull-projectshared to merge"
+  echo "    partner's changes into Brain canonical and restore symlinks."
+  echo ""
+  echo "    DO NOT push, edit brain files, or run /start-session until resolved."
+  echo ""
+fi
+HOOK
+  chmod 0755 "$hooks_dir/post-merge"
+
+  # Mark tracked brain files as assume-unchanged so git ignores the
+  # symlink-vs-committed-real-file divergence. Push-projectshared's flow
+  # clears these flags, dereferences, commits, pushes, then re-sets them.
+  ( cd "$project" && git ls-files project_files/brain/ 2>/dev/null | while read f; do
+      git update-index --assume-unchanged "$f" 2>/dev/null || true
+    done )
+
+  # Exclude the directory-symlinks locally — they replaced previously-tracked
+  # real dirs, so git sees them as untracked. .git/info/exclude silences that.
+  exclude="$project/.git/info/exclude"
+  for sym in project_files/brain/memory project_files/brain/DevLog; do
+    grep -qxF "$sym" "$exclude" 2>/dev/null || echo "$sym" >> "$exclude"
+  done
+
+  echo "  ✓ $slug: pre-push + post-merge hooks + assume-unchanged flags"
 done
 
 echo ""

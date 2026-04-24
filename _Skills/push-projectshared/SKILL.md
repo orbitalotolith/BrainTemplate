@@ -212,7 +212,7 @@ Push-projectshared owns the full commit (does NOT invoke `/commit`). Follows the
    - Subject under 72 chars, imperative mood
 5. Push to remote:
    ```bash
-   git push origin main
+   ALLOW_COLLAB_PUSH=1 git push origin main
    ```
 6. **Race condition:** If push fails (non-fast-forward), fetch + pull --ff-only + re-stage + retry. Max 2 attempts.
 

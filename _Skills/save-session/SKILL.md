@@ -56,24 +56,53 @@ LAST_SAVE=$(cat ~/.claude/last-session-save-timestamp 2>/dev/null || echo "0")
 
 | Tier | When | What Runs |
 |------|------|-----------|
-| **Standard** | Default for every save. | Scan conversation since last save for new knowledge. Write anything found (memories, KB, profile, CLAUDE.md). Update AS file (append or overwrite). Sync memories (8b). Verify git state. Timestamp + git status. ~5-15s when knowledge found, faster when nothing new. |
-| **Substantial** | Session produced work worth narrating — features completed, bugs fixed, architectural decisions, meaningful understanding gained. | Everything in Standard, PLUS: full session review (step 1), DevLog archiving (2c), full AS rewrite with detailed narration, log.md maintenance (5), Brain git commit offer (9). |
+| **Standard** | Default for every save. | Scan conversation since last save for new knowledge. Write anything found (memories, KB, profile, CLAUDE.md). Update AS file (append or overwrite). Sync memories (8b). Verify git state. Timestamp + git status. |
+| **Substantial** | Session produced knowledge worth archiving in DevLog. | Everything in Standard, PLUS: full session review (step 1), DevLog archiving (2c), full AS rewrite with detailed narration, log.md maintenance (5), Brain git commit offer (9). |
 
-**Classification is content-based, not time-based.** The question is: "Has anything worth narrating in detail happened since last save?" not "How long since last save?"
+#### Classification algorithm (explicit, not vibes)
 
-- If conversation since last save has no new tool calls, no new code, no new decisions → standard save confirms nothing new, writes timestamp + git status (fast)
-- If conversation has new work (minor or major) → standard save captures the knowledge
-- If session produced substantial work worth archiving → substantial save with full narration
+**SUBSTANTIAL if ANY of these are true:**
 
-Default to standard. Only escalate to substantial when the session genuinely warrants a DevLog entry.
+1. A **gotcha** was discovered worth documenting (platform quirk, framework surprise, landmine)
+2. An **error or bug** was root-caused (investigation → understanding → fix — not just a fix without insight)
+3. An **architectural change** was made (structure, patterns, cross-cutting concerns)
+4. A new **`_KnowledgeBase/` entry** was written this session
+5. The user **explicitly said** "that was a big one" / "substantial save" / "write a devlog"
+
+**STANDARD otherwise** — catches everything else: feature shipped, plan phase completed, work-in-progress, exploration, bug-investigation-without-root-cause, small tweaks, planning discussions, quick checkpoints. These save knowledge but don't need DevLog narration.
+
+**Notable:** feature-shipped and phase-completed are NOT substantial triggers. Those sessions update the handoff (via session.md + _Status.md Current Focus) and that's enough — no DevLog needed. Use `/save-lightweight` for pure progress checkpoints.
+
+#### Announce at save start
+
+Before writing anything, state the classification and the trigger (or absence of one):
+
+```
+Tier: substantial — trigger: gotcha captured + new KB entry for FastAPI lifespan behavior
+```
+
+or:
+
+```
+Tier: standard — no narrative-worthy events this session
+```
+
+This makes it easy for the user to correct if misclassified.
+
+#### User override via argument
+
+- `/save-session substantial` — force substantial tier (skips algorithm, writes DevLog)
+- `/save-session standard` — force standard tier (skips algorithm, no DevLog)
+- `/save-session` (no arg) — algorithm decides
+
+When override is used, announce: `Tier: substantial (user override)`.
 
 ### Project Resolution
 
-Before any read or write, determine which AS file belongs to this project:
+Before any read or write, determine which AS file belongs to this project. Apply these rules **in order** — first match wins:
 
-1. Read the project registry: `$BRAIN/_projects.conf`
+1. Locate Brain root and read the project registry:
    ```bash
-   # Locate Brain root
    BRAIN="${BRAIN_ROOT:-}"
    if [ -z "$BRAIN" ]; then
      BRAIN=$(dirname "$(find "$HOME/Development" -maxdepth 2 -name '_ActiveSessions' -type d 2>/dev/null | head -1)" 2>/dev/null)
@@ -83,15 +112,55 @@ Before any read or write, determine which AS file belongs to this project:
      exit 1
    fi
    DEV="$HOME/Development"
-   # Parse registry into slug|category|code triples
    grep -v '^#' "$BRAIN/_projects.conf" | grep -v '^$'
    ```
-2. Get CWD. Strip `~/Development/` prefix to get the relative path.
+
+2. Get CWD and apply resolution rules:
+
+   **a. Brain root itself** — CWD == `$BRAIN` → slug = `brain`. No prompt.
+
+   **b. Brain subdirs with slug in path (unambiguous)** — extract `<slug>` directly from:
+   - `$BRAIN/_ActiveSessions/<slug>/*` (or `_Parked/<slug>/*`)
+   - `$BRAIN/_Docs/<slug>/*`
+   - `$BRAIN/_Memory/<slug>/*`
+   - `$BRAIN/_DevLog/<slug>/*`
+   - `$BRAIN/_Workbench/<slug>/*`
+   - `$BRAIN/_ClaudeSettings/<slug>/*`
+
+   **c. Code repo** — CWD under `~/Development/` but not `$BRAIN` → match relative path against CODE_PATH (longest prefix wins).
+
+   **d. Cross-cutting Brain subdirs (ambiguous — prompt)** — for `$BRAIN/_Skills/*`, `$BRAIN/_KnowledgeBase/*`, `$BRAIN/_Profile/*`, `$BRAIN/_Agents/*`, or any other Brain path not matching a-c, use **AskUserQuestion** to ask which project's session to save to. Options: all slugs from `_projects.conf` (default: `brain`) + "none — cancel".
+
+   **e. No match** — warn: "No active session file found for this project. Run `/create-project` to register it." Stop.
 3. Match against CODE_PATH entries from the registry (longest prefix wins). The matching SLUG is the project slug.
 4. If CWD is under `$BRAIN/_Workbench/<slug>/`, extract `<slug>` directly.
 5. If no match, warn: "No active session file found for this project. Run `/create-project` to register it."
 
 The AS file path is: `$BRAIN/_ActiveSessions/<slug>/session.md`
+
+### 1b. Collab Symlink Safety
+
+If the resolved slug is a collab project (4th field of `_projects.conf` is `collab`), verify the code repo's `project_files/brain/` entries are symlinks, not real files. If any are real files, a prior `git pull` outside `/pull-projectshared` corrupted them — refuse to save so we don't clobber fresh Brain canonical with stale repo copies.
+
+```bash
+COLLAB=$(grep "^${slug}|" "$BRAIN/_projects.conf" | cut -d'|' -f4)
+if [ "$COLLAB" = "collab" ]; then
+  code=$(grep "^${slug}|" "$BRAIN/_projects.conf" | cut -d'|' -f3)
+  repo_brain="$HOME/Development/$code/project_files/brain"
+  broken=""
+  for item in CLAUDE.md session.md _Status.md memory DevLog Workbench _Docs; do
+    t="$repo_brain/$item"
+    [ -e "$t" ] && [ ! -L "$t" ] && broken="$broken $item"
+  done
+  if [ -n "$broken" ]; then
+    echo "ERROR: Brain symlinks are broken in $slug (collab repo)."
+    echo "       Real files at:$broken"
+    echo "       Fix: /pull-projectshared (merges partner changes + restores symlinks)"
+    echo "       Or:  _setup.sh (only if Brain canonical is known-fresh)"
+    exit 1
+  fi
+fi
+```
 
 ### 1d. Detect Project Format and Identity
 
@@ -198,7 +267,7 @@ Proceed with the existing single-person format — write the entire file as belo
 
 **If `SESSION_FORMAT="universal"` (session.md):**
 
-1. Read the existing `session.md` file
+1. Reuse the `session.md` content already read in step 2c (substantial tier). If standard tier (2c was skipped), read it now.
 2. Find the section matching `## $IDENTITY |` (your identity header)
 3. If your section exists, replace it entirely (from your `## identity |` line to the next `## ` line or end of file)
 4. If your section doesn't exist, append it after the last section
@@ -269,23 +338,30 @@ Update the frontmatter `status:` to `parked` and add `parked-reason:` field.
 
 If the AS file doesn't exist yet (new project, first save), create it with the format above.
 
-### 4. Update `_Status.md` *(only if something changed)*
+### 4. Update `_Status.md` *(via /capture)*
 
 The _Status.md file lives at `$BRAIN/_ActiveSessions/<slug>/_Status.md` (Brain-canonical). Code repos access it via symlink at `project_files/brain/_Status.md`.
 
 Skip this step if slug is `brain` (Brain's own status is different).
 
-Skip this step if current focus, decisions, and gotchas are all unchanged from before this session.
+Skip this step if current focus is unchanged AND no new decisions/gotchas were made this session.
 
-If anything changed, edit `_Status.md` in place — do NOT append:
+**This step is capture-only, not review.** `/capture` owns format, date prefix, cap check, and duplicate detection. `/status-audit` owns routing/cleanup of existing entries. Do not re-evaluate or re-organize existing content here.
 
-- **Current Focus** — update to reflect what's actively being worked on
-- **Active Decisions** — living list of key decisions with 1-line reasoning. Max ~10 entries. When a decision is revisited, REPLACE the entry — don't add a duplicate. When a decision is reversed, remove the old entry and add the new one.
-- **Gotchas** — things that will bite you if you don't know them. REMOVE entries when the gotcha is fixed. Add new ones discovered this session.
+For in-place field updates, edit `_Status.md` directly:
+
+- **Current Focus** — update to reflect what's actively being worked on (1-3 lines max)
 - **Version** — update if version changed
 - **Overview / Tech Stack** — update only if meaningfully changed
 
-**Size rule:** Target 40-80 lines. If exceeding ~100 lines, move detail into `project_files/brain/Architecture/` or similar subdocs and leave a pointer.
+For decisions and gotchas surfaced this session, delegate to `/capture` — one call per item:
+
+- Decision: `/capture decision "<text>" --slug=<slug> --silent`
+- Gotcha: `/capture gotcha "<text>" --slug=<slug> --silent`
+
+`/capture` appends with `(YYYY-MM-DD)` date prefix, runs the duplicate check, and emits the ⚠ cap-warning line if counts exceed 25 decisions / 10 gotchas.
+
+Do NOT attempt cleanup inline. The user runs `/status-audit` deliberately.
 
 ### 5. Update Project Documentation *(if something new was learned)*
 
@@ -295,7 +371,7 @@ If something was learned:
 - **CLAUDE.md** — add any new patterns, conventions, or gotchas. These persist across all future sessions, so anything learned about the codebase that's generally useful belongs here.
 - **README.md** — update if new features or setup steps were added
 
-### 7.5. Update `_KnowledgeBase/` *(if platform-level knowledge was discovered)*
+### 7.5. Update `_KnowledgeBase/` *(via /capture)*
 
 Runs on every save. Skip only if all discoveries were project-specific or nothing new was learned since last save.
 
@@ -304,55 +380,78 @@ Write to `$BRAIN/_KnowledgeBase/` if this session surfaced:
 - A framework API behavior applicable to any project using that technology
 - A gotcha that would bite a developer new to this technology
 
-**How to write:** Find the matching file by topic (BLE.md, iOS Development.md, etc.). Append to the Gotchas section or add a new section. Include version/context on every entry (e.g., "as of Xcode 16.2", "bluer 0.15+"). If no file matches the topic, create one with frontmatter `tags: [reference, <domain>]`.
+For each discovery, delegate to `/capture` — one call per item:
 
-**How to prune:** When writing, scan the same file for existing entries that are now resolved, superseded, or no longer apply. Remove them. A lean KB beats an exhaustive one.
+```
+/capture kb "<text with version/context>" --domain=<file-basename> --silent
+```
 
-**Do NOT write to KB:** Project-specific bugs, codebase decisions, or repo-only patterns. Those go in `_Status.md` Gotchas or project `CLAUDE.md`.
+`/capture` handles file creation with frontmatter (if `<domain>.md` is missing), duplicate check, version/context formatting, and the prune-candidate surface. Silent mode does NOT auto-delete prune candidates — it lists them in the caller's output so the user can review.
 
-### 8. Write to Claude Memory *(if preferences or feedback emerged)*
+**Do NOT capture to KB:** project-specific bugs, codebase decisions, or repo-only patterns. Those went through step 4 already.
+
+### 8. Write to Claude Memory *(via /capture)*
 
 Runs on every save. Skip only if no user preferences, feedback on Claude's behavior, or cross-project patterns were observed since last save.
 
-If any of the following occurred, write to Claude's memory system (`~/.claude/projects/<project>/memory/`):
+For each memory-worthy observation, delegate to `/capture` — one call per item:
 
-- **User preferences or feedback** on Claude's behavior → save as `feedback` type memory
-- **Cross-project patterns** ("user always wants X") → save as `user` type memory
-- **Workflow preferences** ("user prefers short responses") → save as `user` type memory
+```
+/capture memory "<body text>" --subtype=<feedback|user|project|reference> --slug=<slug or brain> --name=<short_snake> --silent
+```
 
-**Do NOT save to memory:** Project-specific decisions (→ `_Status.md`), code patterns (→ `CLAUDE.md`), session history (→ DevLog).
+Subtype routing:
+- **User preferences or feedback on Claude's behavior** → `--subtype=feedback`
+- **Cross-project patterns** ("user always wants X") → `--subtype=user`
+- **Workflow preferences** ("user prefers short responses") → `--subtype=user`
+- **Per-project facts** (active decisions, project-specific preferences) → `--subtype=project`
+- **Pointers to external systems** (dashboards, Linear projects) → `--subtype=reference`
 
-### 8c. Update `_Profile/` *(if session revealed new profile info)*
+`/capture` writes to `_Memory/<slug>/<subtype>_<name>.md` (which is symlinked to `~/.claude/projects/.../memory/` for code-repo projects, or copy-synced for brain) and updates `MEMORY.md` with a one-line index entry.
+
+**Do NOT capture to memory:** project-specific decisions (→ `_Status.md` decisions via step 4), code patterns (→ `CLAUDE.md`), session history (→ DevLog).
+
+### 8c. Update `_Profile/` *(via /capture)*
 
 Runs on every save. Skip only if nothing since last save revealed new information about the user — their preferences, business state, skills, or identity. When in doubt, skip.
 
-If something was revealed, update the relevant file in `$BRAIN/_Profile/`:
+For each profile-worthy revelation, delegate to `/capture` — one call per item:
 
-- **New preference or feedback about how they work with AI** → `preferences.md`
-- **Business update** (new client, revenue change, new service, LLC update) → `business.md`
-- **New skill or tool demonstrated/mentioned** → `skills.md`
-- **Identity or philosophy shift** → `identity.md`
+```
+/capture profile "<replacement section body>" --file=<preferences|business|skills|identity>.md --section="<section heading>" --silent
+```
 
-Edit in place — do NOT append duplicate entries. Replace outdated information rather than duplicating it. Update the `updated:` frontmatter date on any file you modify.
+File routing:
+- **New preference or feedback about how they work with AI** → `--file=preferences.md`
+- **Business update** (new client, revenue change, new service, LLC update) → `--file=business.md`
+- **New skill or tool demonstrated/mentioned** → `--file=skills.md`
+- **Identity or philosophy shift** → `--file=identity.md`
+
+`/capture` performs in-place section replacement (not append) and updates the `updated:` frontmatter date.
 
 **What belongs here vs Claude Memory:**
 - **Claude Memory** (`~/.claude/projects/.../memory/`) — fast cross-session recall, project-scoped, ephemeral
 - **`_Profile/`** — authoritative human-readable record, synced cross-machine via Brain git, visible in Obsidian, persists indefinitely
 - Both can be updated in the same session when relevant — they serve different access patterns
 
-### 8d. Update `_Agents/oto/` *(if session revealed new oto behavior or standing context)*
+### 8d. Update `_Agents/oto/` *(via /capture)*
 
 Runs on every save. Skip if nothing since last save changed how oto — the chief-of-staff agent — should behave or what it should know at startup. When in doubt, skip. User preferences (tone, working style) belong in `_Profile/` — step 8c covers that.
 
-If something was revealed, update the relevant file in `$BRAIN/_Agents/oto/`:
+For each oto-behavior revelation, delegate to `/capture` — one call per item:
 
-- **Persona change** (tone, voice, personality traits, "never" rules) → `persona.yaml` — YAML fields only, no markdown
-- **Behavioral constraint** ("oto should route X via Y", "always ask before Z") → create or edit `constraints.md` with a brief list
-- **New pointer or convention oto should know at startup** → `standing-context.md`
+```
+/capture oto "<new field/section body>" --target=<persona.yaml|standing-context.md|constraints.md> --field="<field or section name>" --silent
+```
 
-Edit in place. Never overwrite the full persona.yaml just to update one field. This file is symlinked into AgentDashboard (`AgentDashboard/skills/oto/persona.yaml → _Agents/oto/persona.yaml`), so changes take effect on next oto restart.
+Target routing:
+- **Persona change** (tone, voice, personality traits, "never" rules) → `--target=persona.yaml` — a single YAML field
+- **Behavioral constraint** ("oto should route X via Y", "always ask before Z") → `--target=constraints.md` (create if missing)
+- **New pointer or convention oto should know at startup** → `--target=standing-context.md`
 
-**Do NOT write to `_Agents/oto/memory/`** — that's oto's private scratchpad, written by the agent itself via `vault_write`.
+`/capture` performs field-by-field edit — never overwrites the full persona.yaml just to update one field. persona.yaml is symlinked into AgentDashboard, so changes take effect on next oto restart.
+
+**Do NOT capture to `_Agents/oto/memory/`** — that's oto's private scratchpad, written by the agent itself via `vault_write`. `/capture` will refuse this target.
 
 ### 8b. Sync Memory Back to Brain Git *(every save — even if no new memories were written)*
 

@@ -27,7 +27,39 @@ fi
 grep -v '^#' "$BRAIN/_projects.conf" | grep -v '^$'
 ```
 
-Match CWD against CODE_PATH entries (longest prefix wins) to get the project slug. If CWD is under `$BRAIN/_Workbench/<slug>/`, extract slug directly. AS file: `$BRAIN/_ActiveSessions/<slug>/session.md`.
+Resolution rules **in order** — first match wins:
+
+- **a. Brain root itself** — CWD == `$BRAIN` → slug = `brain`. No prompt.
+- **b. Brain subdirs with slug in path (unambiguous)** — extract `<slug>` from: `_ActiveSessions/<slug>/*` (or `_Parked/<slug>/*`), `_Docs/<slug>/*`, `_Memory/<slug>/*`, `_DevLog/<slug>/*`, `_Workbench/<slug>/*`, `_ClaudeSettings/<slug>/*`.
+- **c. Code repo** — CWD under `~/Development/` but not `$BRAIN` → match CODE_PATH (longest prefix wins).
+- **d. Cross-cutting Brain subdirs (ambiguous — prompt)** — for `_Skills/*`, `_KnowledgeBase/*`, `_Profile/*`, `_Agents/*`, or any other Brain path not matching a-c, use **AskUserQuestion** to ask which project. Options: all slugs from `_projects.conf` (default: `brain`) + "none — cancel".
+- **e. No match** — stop with error.
+
+AS file: `$BRAIN/_ActiveSessions/<slug>/session.md`.
+
+### 1b. Collab Symlink Safety
+
+If the resolved slug is a collab project (4th field of `_projects.conf` is `collab`), verify the code repo's `project_files/brain/` entries are symlinks, not real files. If any are real files, a prior `git pull` outside `/pull-projectshared` corrupted them — refuse to save so we don't clobber fresh Brain canonical with stale repo copies.
+
+```bash
+COLLAB=$(grep "^${slug}|" "$BRAIN/_projects.conf" | cut -d'|' -f4)
+if [ "$COLLAB" = "collab" ]; then
+  code=$(grep "^${slug}|" "$BRAIN/_projects.conf" | cut -d'|' -f3)
+  repo_brain="$HOME/Development/$code/project_files/brain"
+  broken=""
+  for item in CLAUDE.md session.md _Status.md memory DevLog Workbench _Docs; do
+    t="$repo_brain/$item"
+    [ -e "$t" ] && [ ! -L "$t" ] && broken="$broken $item"
+  done
+  if [ -n "$broken" ]; then
+    echo "ERROR: Brain symlinks are broken in $slug (collab repo)."
+    echo "       Real files at:$broken"
+    echo "       Fix: /pull-projectshared (merges partner changes + restores symlinks)"
+    echo "       Or:  _setup.sh (only if Brain canonical is known-fresh)"
+    exit 1
+  fi
+fi
+```
 
 ### 2. Detect Format and Identity
 
@@ -73,6 +105,21 @@ Format each entry as:
 ```
 
 Keep only the last 5 entries in this section (drop the oldest if needed). Do NOT touch any other section of `_Status.md`.
+
+### 4c. Capture New Gotchas *(via /capture)*
+
+Scan the conversation since last save for **new gotchas** the user or Claude encountered — platform quirks, framework surprises, workarounds discovered, landmines to avoid next time.
+
+- If **none surfaced**: skip this step silently.
+- If **at least one surfaced**: for each, invoke `/capture` in interactive mode (NOT silent):
+
+```
+/capture gotcha "<1-line description>" --slug=<slug>
+```
+
+`/capture` interactive mode confirms each entry via `AskUserQuestion` before writing, appends with `(YYYY-MM-DD)` date prefix, and emits the ⚠ cap-warning line if `## Gotchas` exceeds 10 or `## Active Decisions` exceeds 25.
+
+This is **capture only** — no routing to KB/CLAUDE.md/skills/memory. Routing is owned by `/status-audit` and happens deliberately, not mid-save.
 
 ### 5. Write Timestamp
 
