@@ -374,13 +374,13 @@ For phases that iterate across projects, list every affected project explicitly:
 ```markdown
 ## Phase B: Physical File Migration
 
-### Project: cardvault
-- [ ] Move `_ActiveSessions/cardvault-as.md` → `_ActiveSessions/cardvault/session.md`
-- [ ] Move `_Notes/Projects/CardVault/_Status.md` → `_ActiveSessions/cardvault/_Status.md`
-  **Verify:** `ls -la _ActiveSessions/cardvault/`
+### Project: <project-slug>
+- [ ] Move `_ActiveSessions/<project-slug>-as.md` → `_ActiveSessions/<project-slug>/session.md`
+- [ ] Move `_Notes/Projects/<ProjectName>/_Status.md` → `_ActiveSessions/<project-slug>/_Status.md`
+  **Verify:** `ls -la _ActiveSessions/<project-slug>/`
 
-### Project: carreader
-- [ ] Create `_ActiveSessions/carreader/session.md` (no existing session file)
+### Project: <another-slug>
+- [ ] Create `_ActiveSessions/<another-slug>/session.md` (no existing session file)
 ...
 ```
 

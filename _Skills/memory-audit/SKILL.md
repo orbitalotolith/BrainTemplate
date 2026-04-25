@@ -114,7 +114,7 @@ For each memory in a non-brain project directory, evaluate: is this actually glo
 | `project` about a specific codebase | Project → stays | "ML pipeline uses two stages" |
 | `reference` to project-specific resource | Project → stays | "Google Drive via rclone" |
 | `reference` to general tool/platform | Global → promote | — |
-| `feedback` about client-specific constraint | Project → stays | "no Docker for Mercana" |
+| `feedback` about client-specific constraint | Project → stays | "no Docker for <client>" |
 
 If global: → **MEM-PROMOTE** (recommend move to `$BRAIN/_Memory/brain/`, update both MEMORY.md indexes, remove from project directory)
 

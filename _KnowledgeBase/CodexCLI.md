@@ -40,7 +40,7 @@ Alternative: `-o FILE / --output-last-message FILE` writes the final agent messa
 
 - **~12k input tokens per call due to coding-agent overhead.** Codex loads its system prompt + tool definitions on every `exec`. `--ignore-rules --ignore-user-config` does NOT strip this — the overhead is the agent framework itself. As of `codex-cli 0.122.0` (2026-04-20 release): "Say only pong" burns `input_tokens: 12233, output_tokens: 17`, latency ~5s. Acceptable for low-volume agent routing; **do not use for high-frequency completion**. API key path is mandatory when latency or token cost matters.
 
-- **Probe command is `codex login status`, NOT `codex auth status`.** The latter doesn't exist in v0.122.0. Speculative stubs (including the AgentDashboard spec's original stub) often get this wrong.
+- **Probe command is `codex login status`, NOT `codex auth status`.** The latter doesn't exist in v0.122.0. Speculative stubs often get this wrong.
 
 - **ChatGPT subscription access_token CANNOT be reused against the public OpenAI API.** `~/.codex/auth.json.tokens.access_token` has scopes `openid profile email offline_access api.connectors.read api.connectors.invoke` only. Curl against `api.openai.com/v1/models` returns `403 "Missing scopes: api.model.read"`. Chat-completions endpoint similarly rejects. As of 2026-04-21, the OpenClaw pattern of using the raw token against `api.openai.com/v1/chat/completions` **does not work** — either the docs are stale or they use an auth path I couldn't reproduce. The only working subscription-auth path is shelling out to `codex exec`.
 

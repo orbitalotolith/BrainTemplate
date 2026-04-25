@@ -434,24 +434,24 @@ File routing:
 - **`_Profile/`** — authoritative human-readable record, synced cross-machine via Brain git, visible in Obsidian, persists indefinitely
 - Both can be updated in the same session when relevant — they serve different access patterns
 
-### 8d. Update `_Agents/oto/` *(via /capture)*
+### 8d. Update agent persona *(via /capture)*
 
-Runs on every save. Skip if nothing since last save changed how oto — the chief-of-staff agent — should behave or what it should know at startup. When in doubt, skip. User preferences (tone, working style) belong in `_Profile/` — step 8c covers that.
+Runs on every save. Skip if nothing since last save changed how the agent should behave or what it should know at startup. When in doubt, skip. User preferences (tone, working style) belong in `_Profile/` — step 8c covers that.
 
-For each oto-behavior revelation, delegate to `/capture` — one call per item:
+For each agent-behavior revelation, delegate to `/capture` — one call per item:
 
 ```
-/capture oto "<new field/section body>" --target=<persona.yaml|standing-context.md|constraints.md> --field="<field or section name>" --silent
+/capture agent "<new field/section body>" --target=<persona.yaml|standing-context.md|constraints.md> --field="<field or section name>" --silent
 ```
 
 Target routing:
 - **Persona change** (tone, voice, personality traits, "never" rules) → `--target=persona.yaml` — a single YAML field
-- **Behavioral constraint** ("oto should route X via Y", "always ask before Z") → `--target=constraints.md` (create if missing)
-- **New pointer or convention oto should know at startup** → `--target=standing-context.md`
+- **Behavioral constraint** ("agent should route X via Y", "always ask before Z") → `--target=constraints.md` (create if missing)
+- **New pointer or convention the agent should know at startup** → `--target=standing-context.md`
 
-`/capture` performs field-by-field edit — never overwrites the full persona.yaml just to update one field. persona.yaml is symlinked into AgentDashboard, so changes take effect on next oto restart.
+`/capture` performs field-by-field edit — never overwrites the full persona.yaml just to update one field. persona.yaml is symlinked into the agent's runtime, so changes take effect on next agent restart.
 
-**Do NOT capture to `_Agents/oto/memory/`** — that's oto's private scratchpad, written by the agent itself via `vault_write`. `/capture` will refuse this target.
+**Do NOT capture to `_Agents/<agent>/memory/`** — that's the agent's private scratchpad, written by the agent itself via `vault_write`. `/capture` will refuse this target.
 
 ### 8b. Sync Memory Back to Brain Git *(every save — even if no new memories were written)*
 
@@ -572,7 +572,7 @@ Session saved [standard | substantial]:
   KB: _KnowledgeBase/<file>.md [updated: <finding>, pruned N stale | created: <file> | skipped (project-specific only)]
   Memory: [wrote N memories | skipped (no preferences/feedback observed)]
   Profile: _Profile/<file>.md [updated: <what changed> | skipped (nothing new learned)]
-  Oto: _Agents/oto/<file> [updated: <what changed> | skipped (no oto-behavior or standing-context changes)]
+  Agent: _Agents/<agent>/<file> [updated: <what changed> | skipped (no agent-behavior or standing-context changes)]
   Brain git: [committed + pushed | declined (Obsidian Git will sync) | skipped (standard) | no changes]
   Plan: X/Y tasks complete, T-XXX in progress [if plan exists]
   Committed: N commits since last save [or "none"]
@@ -586,7 +586,7 @@ Session saved [standard | substantial]:
 
 - **Knowledge capture is the priority.** The goal of every save is to ensure the AI continuously improves its understanding of WHY and HOW decisions are made. Speed is achieved by deferring narration (DevLog, full AS rewrite), not by skipping learning (memories, KB, profile, CLAUDE.md).
 - **State claims require verification.** The handoff distinguishes two kinds of claims: *action claims* ("updated 6 skills", "chose approach A") are immutable and can be written from session memory. *State claims* ("compiles", "tests pass", "files uncommitted") decay the moment another actor touches the repo. State claims must be either verified at write-time (run the command) or explicitly qualified with when they were last verified (e.g., "tests passed as of commit abc1234"). Never assert current state from memory alone.
-- **Every save runs knowledge capture.** Steps 3 (AS update), 4 (_Status.md), 6 (CLAUDE.md), 7.5 (KB), 8 (memories), 8b (sync), 8c (profile), 8d (oto), 9b (final sync), 10 (timestamp), 11 (git status) run on every save. They skip only if nothing new was found — never because of tier.
+- **Every save runs knowledge capture.** Steps 3 (AS update), 4 (_Status.md), 6 (CLAUDE.md), 7.5 (KB), 8 (memories), 8b (sync), 8c (profile), 8d (agent), 9b (final sync), 10 (timestamp), 11 (git status) run on every save. They skip only if nothing new was found — never because of tier.
 - **Tier classification is content-based.** "Has anything worth narrating happened?" — not "How long since last save?"
 - For standard saves: skip DevLog archiving (2c), log.md (5), full session review narration (1), and Brain git commit (9). Always run knowledge capture and memory sync.
 - For substantial saves: run the full pipeline including session review, DevLog, and Brain git commit offer.

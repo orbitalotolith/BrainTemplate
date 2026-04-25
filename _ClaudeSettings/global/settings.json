@@ -42,7 +42,6 @@
       "Bash(ss:*)",
       "Bash(source:*)",
       "Bash(python:*)",
-      "Bash(/home/chum/Development/Mercana/imageAnnotation/release/src/backend/ml/venv/bin/python:*)",
       "Bash(xargs:*)",
       "Bash(venv/bin/python:*)",
       "Bash(cd:*)",

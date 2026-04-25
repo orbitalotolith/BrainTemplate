@@ -601,11 +601,7 @@ _Agents/
 
 ### Canonical persona via symlink
 
-Like `_ClaudeSettings/<slug>/CLAUDE.md` and `_Memory/<slug>/`, an agent's persona is canonical in Brain. The agent's own codebase symlinks into Brain — e.g., `AgentDashboard/skills/oto/persona.yaml → $BRAIN_ROOT/_Agents/oto/persona.yaml`. Edit the persona in Brain; next agent restart picks it up.
-
-### Current agents
-
-- **oto** — chief of staff running in [AgentDashboard](_Docs/agentdashboard/). Routes iMessage conversations, orchestrates working groups, uses `brain_read` / `brain_write` tools to pull project context and persist artifacts.
+Like `_ClaudeSettings/<slug>/CLAUDE.md` and `_Memory/<slug>/`, an agent's persona is canonical in Brain. The agent's own codebase symlinks into Brain — e.g., `<agent-host>/skills/<agent>/persona.yaml → $BRAIN_ROOT/_Agents/<agent>/persona.yaml`. Edit the persona in Brain; next agent restart picks it up.
 
 ---
 

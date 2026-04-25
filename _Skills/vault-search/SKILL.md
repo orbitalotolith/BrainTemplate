@@ -52,14 +52,14 @@ Group results by source type:
 
 ```
 ## DevLog Matches
-- **2026-03-21** (DimensionStudio): "matched line with context..."
+- **2026-03-21** (<ProjectName>): "matched line with context..."
 - **2026-03-16** (Brain): "matched line with context..."
 
 ## KnowledgeBase Matches
 - **BLE.md**: "matched line with context..."
 
 ## ActiveSessions Matches
-- **_ActiveSessions/dimensionstudio/_Status.md**: "matched line with context..."
+- **_ActiveSessions/<slug>/_Status.md**: "matched line with context..."
 ```
 
 - Show at most 20 results per category

@@ -30,6 +30,6 @@ An agent in `_Agents/<name>/` typically has:
 
 Project slugs in `_projects.conf` exist so Claude Code sessions can map a working directory to Brain artifacts (`_ActiveSessions/<slug>/`, `_Memory/<slug>/`, etc.) via `project_files/brain/` symlinks. Agents in `_Agents/` aren't code repos — they're processes that **consume** the vault. No symlinks, no code-repo mapping.
 
-## Current agents
+## Adding an agent
 
-- **oto** — chief of staff running in [AgentDashboard](../_Docs/agentdashboard/). Routes iMessage conversations, orchestrates working groups, pulls project context from Brain.
+Create `_Agents/<agent-name>/` following the convention above. Populate `persona.yaml`, `standing-context.md`, and an empty `memory/` directory. The runtime that hosts the agent symlinks into Brain so `_Agents/<agent-name>/persona.yaml` is the canonical source of truth.

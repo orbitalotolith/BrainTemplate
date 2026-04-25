@@ -75,8 +75,8 @@ done
 
 For each repo found, extract:
 - `category`: path relative to `$DEV` up to (but not including) the project directory (e.g., `Clients/Acme`, `Personal`, `Freelance`)
-- `project_name`: directory name (e.g., `DimensionStudio`, `PasswordManager`)
-- `slug`: lowercase project name, no hyphens (e.g., `dimensionstudio`, `passwordmanager`)
+- `project_name`: directory name (e.g., `MyProject`, `LibName`)
+- `slug`: lowercase project name, no hyphens (e.g., `myproject`, `libname`)
 - `full_path`: absolute path to the code repo
 
 #### 1b. Workbench Directories
@@ -180,7 +180,7 @@ For each project in the registry:
 
 **Naming convention rules** (from `_HowThisWorks.md`):
 - `_prefix` for system/meta files: `_Status.md`, `_Brand.md`, `_Workbench/`, `_ActiveSessions/`
-- `PascalCase` for project and multi-word folder names: `ProjectA`, `DimensionStudio`
+- `PascalCase` for project and multi-word folder names: `ProjectA`, `MultiWordProject`
 - `lowercase` for system/gitignored directories: `project_files/`, `notes/`
 - No spaces in any folder or file names
 

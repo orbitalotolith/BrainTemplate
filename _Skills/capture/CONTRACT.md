@@ -11,7 +11,7 @@ Violations are errors — the skill or the contract must be updated to resolve t
 | 4  | Silent mode (`--silent`) MUST NOT invoke `AskUserQuestion`. If required info is missing, fail loud with a structured error prefixed `ERROR:` and exit. |
 | 5  | Interactive mode MUST confirm each item individually before writing (one `AskUserQuestion` per item). |
 | 6  | MUST resolve `<slug>` via save-session rules a-e. Silent callers pass `--slug=<x>` to skip resolution. |
-| 7  | MUST NOT write to `$BRAIN/_Agents/oto/memory/` — that is oto's private scratchpad, written only by the agent itself via `vault_write`. |
-| 8  | `profile` and `oto` writes MUST be edit-in-place, not append. Fail loud if the target section (profile) or field (oto) is not specified. |
+| 7  | MUST NOT write to `$BRAIN/_Agents/<agent>/memory/` — that is the agent's private scratchpad, written only by the agent itself via `vault_write`. |
+| 8  | `profile` and `agent` writes MUST be edit-in-place, not append. Fail loud if the target section (profile) or field (agent) is not specified. |
 | 9  | Bulk invocations from `/save-session` and `/save-lightweight` MUST arrive as one `/capture` call per item — no batched arrays. |
 | 10 | Every successful write MUST produce a one-line confirmation to the caller showing destination path and entry summary. |

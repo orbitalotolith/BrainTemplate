@@ -103,7 +103,7 @@ Parse each target's `.entitlements` file. Grep Swift/ObjC/Rust sources for API u
 **BLOCK** if any hardcoded paths are found in app target sources.
 
 **Init ordering (when Rust FFI is used):**
-- Verify that the sandbox-safe storage directory is passed to Rust (e.g., `firetop_set_state_dir()` or equivalent) BEFORE any FFI calls that access storage (`firetop_get_device_id`, `firetop_load_keypair`, etc.).
+- Verify that the sandbox-safe storage directory is passed to Rust (e.g., `<project>_set_state_dir()` or equivalent) BEFORE any FFI calls that access storage (`<project>_get_device_id`, `<project>_load_keypair`, etc.).
 - Check that `@State` properties creating objects that call FFI are initialized in `init()` with `State(initialValue:)` — NOT inline — to guarantee ordering.
 - **BLOCK** if storage init call is missing or comes after storage-accessing FFI calls.
 

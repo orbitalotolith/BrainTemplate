@@ -25,7 +25,7 @@ Everything in the local Brain that is NOT in the private exclusion list. BrainSh
 
 **What is NEVER pushed:**
 - `_Profile/` — always private
-- `_Agents/` — each partner's personal agent personas (oto, rogue, etc.) are private
+- `_Agents/` — each partner's personal agent personas are private (not synced)
 - `_projects.conf` — always private
 - `_sync.conf` — always private
 - `_DevLog/` (root-level) — always private

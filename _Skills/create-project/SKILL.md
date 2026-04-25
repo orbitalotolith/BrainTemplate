@@ -27,7 +27,7 @@ Detect from CWD:
 - If CWD is not under `~/Development/`, ask the user where this project lives
 
 Use AskUserQuestion to gather:
-- **Project name** (PascalCase, e.g. `TikTokAgent`)
+- **Project name** (PascalCase, e.g. `MyProject`)
 - **Brief description** (one sentence for CLAUDE.md + _Status.md)
 
 First, detect Brain root. Use the **Bash** tool to run:
@@ -45,7 +45,7 @@ DEV="$HOME/Development"
 ```
 
 Derive:
-- `SLUG` = lowercase project name, no spaces (e.g. `tiktokagent`)
+- `SLUG` = lowercase project name, no spaces (e.g. `myproject`)
 - `REPO_DIR` = `$DEV/<Category>/<Subcategory>/<ProjectName>`
 
 ---

@@ -92,20 +92,20 @@ When an Xcode project is detected:
    Example from a `project.yml`:
    ```yaml
    targets:
-     FireTop:
+     <ProjectIOS>:
        platform: iOS
        sources:
-         - FireTop
-     FireTopMac:
+         - <ProjectIOS>
+     <ProjectMac>:
        platform: macOS
        sources:
-         - FireTopMac
+         - <ProjectMac>
    ```
-   Produces target map: `{FireTop: iOS, FireTopMac: macOS}`
+   Produces target map: `{<ProjectIOS>: iOS, <ProjectMac>: macOS}`
 
 2. **If `.xcodeproj/` exists without `project.yml`**: scan `*.xcodeproj/project.pbxproj` for `buildSettings` containing `SDKROOT` or `SUPPORTED_PLATFORMS` to map targets to platforms. This is less reliable — flag confidence as "inferred" vs "confirmed" for `project.yml`.
 
-3. Also check for `packages:` in `project.yml` — these reference local Swift packages (e.g., `FireTopKit`) that should map to `core/` or `clients/shared/`.
+3. Also check for `packages:` in `project.yml` — these reference local Swift packages (e.g., `<ProjectKit>`) that should map to `core/` or `clients/shared/`.
 
 #### 2d. List Top-Level Directories
 
@@ -195,7 +195,7 @@ A keyword match alone is low-confidence. Before classifying as `[error]`, check 
 
 When downgrading, include the reasoning:
 ```
-[review] UPS-002: `agents/` matches "agent" keyword, but: domain overlap with project slug "agentdashboard", contains independent packages (2 pyproject.toml), core/agents/ already exists → likely intentional
+[review] UPS-002: `agents/` matches "agent" keyword, but: domain overlap with project slug "<your-project-slug>", contains independent packages (2 pyproject.toml), core/agents/ already exists → likely intentional
 ```
 
 Only findings that pass the context check without any signals remain `[error]`.
@@ -254,12 +254,12 @@ For each flagged directory that matches a known Xcode target:
    - `tvOS` → `clients/tv/`
 3. Replace the generic suggestion with a specific one:
    ```
-   [error] UPS-003: `FireTopMac/` is a macOS target (project.yml) → move to `clients/macos/`
+   [error] UPS-003: `<ProjectMac>/` is a macOS target (project.yml) → move to `clients/macos/`
    ```
 
 For local Swift packages found in `project.yml` `packages:` section, suggest `core/` or `clients/shared/`:
 ```
-[error] UPS-003: `FireTopKit/` is a local Swift package (project.yml) → move to `core/` or `clients/shared/`
+[error] UPS-003: `<ProjectKit>/` is a local Swift package (project.yml) → move to `core/` or `clients/shared/`
 ```
 
 If the target platform can't be determined, fall back to UPS-002 or UPS-001.
@@ -272,10 +272,10 @@ After running all checks, print a coverage checklist:
 
 ```
 Structure audit checked N projects:
-  ✓ firetop (Xcode/Swift + Rust) — 8 findings
-  ✓ emulator (Rust) — 0 findings
-  ✓ wearehealth (Xcode/Swift) — 2 findings
-  ✗ cardvault — skipped (repo not cloned)
+  ✓ projecta (Xcode/Swift + Rust) — 8 findings
+  ✓ projectb (Rust) — 0 findings
+  ✓ projectc (Xcode/Swift) — 2 findings
+  ✗ projectd — skipped (repo not cloned)
 ```
 
 This prevents silent skipping. Every project in `_projects.conf` must appear — either checked or explicitly skipped with a reason.
@@ -287,18 +287,18 @@ Present findings grouped by project, with project type shown:
 ```
 ## Structure Audit Report
 
-### FireTop (Personal/FireTop) — Xcode/Swift + Rust
-- [error] UPS-003: `FireTop/` is an iOS target (project.yml) → move to `clients/ios/`
-- [error] UPS-003: `FireTopMac/` is a macOS target (project.yml) → move to `clients/macos/`
-- [error] UPS-003: `FireTopKit/` is a local Swift package (project.yml) → move to `core/` or `clients/shared/`
-- [error] UPS-002: `firetop-core/` contains "core" keyword → rename to `core/`
-- [error] UPS-002: `firetop-proto/` contains "proto" keyword → move to `core/proto/`
+### <ProjectA> (<Category>/<ProjectA>) — Xcode/Swift + Rust
+- [error] UPS-003: `<ProjectA>/` is an iOS target (project.yml) → move to `clients/ios/`
+- [error] UPS-003: `<ProjectA>Mac/` is a macOS target (project.yml) → move to `clients/macos/`
+- [error] UPS-003: `<ProjectA>Kit/` is a local Swift package (project.yml) → move to `core/` or `clients/shared/`
+- [error] UPS-002: `<projecta>-core/` contains "core" keyword → rename to `core/`
+- [error] UPS-002: `<projecta>-proto/` contains "proto" keyword → move to `core/proto/`
 - [error] UPS-002: `desktop-agent/` contains "desktop" + "agent" → move to `clients/desktop/`
 - [warn] UPS-001: `DebuggingAppTests/` — review placement (tests/?)
 - [warn] UPS-001: `infrastructure/` — review placement
 
-### AgentDashboard (Lab/Personal/Lab/AgentDashboard) — Python
-- [review] UPS-002: `agents/` matches "agent" keyword, but: domain overlap with "agentdashboard", contains independent packages, core/agents/ already exists → likely intentional
+### <ProjectB> (<Category>/<ProjectB>) — Python
+- [review] UPS-002: `agents/` matches "agent" keyword, but: domain overlap with "<projectb>", contains independent packages, core/agents/ already exists → likely intentional
 
 ### Summary
 Errors: 6 | Reviews: 1 | Warnings: 2 | Projects checked: N | Projects skipped: N

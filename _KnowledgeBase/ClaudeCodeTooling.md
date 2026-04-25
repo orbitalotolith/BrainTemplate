@@ -13,9 +13,9 @@ Cross-project gotchas specific to Claude Code's built-in tools.
 
 When editing a file reached through a multi-level symlink chain, an intermediate symlink may be replaced with a regular file containing the edited content. The final target is not updated, and the chain is silently broken.
 
-**Observed case** — CodeLiteracy's CLAUDE.md chain:
+**Observed case** — a project's CLAUDE.md chain:
 ```
-CodeLiteracy/CLAUDE.md                              (symlink, tracked by repo)
+<Project>/CLAUDE.md                                 (symlink, tracked by repo)
   → project_files/brain/CLAUDE.md                   (symlink, in gitignored brain/)
     → <Brain>/_ClaudeSettings/<slug>/CLAUDE.md            (real file, tracked by Brain)
 ```

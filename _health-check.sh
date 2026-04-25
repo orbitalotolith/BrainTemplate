@@ -51,13 +51,45 @@ for dir in "$BRAIN/_Workbench" "$BRAIN/_KnowledgeBase" "$BRAIN/_DevLog" \
            "$BRAIN/_ClaudeSettings" "$BRAIN/_Memory" \
            "$BRAIN/_Skills" "$BRAIN/_Templates" \
            "$BRAIN/_ActiveSessions" "$BRAIN/_Profile" \
-           "$BRAIN/_Docs" "$BRAIN/_Agents"; do
+           "$BRAIN/_Docs" "$BRAIN/_Agents" \
+           "$BRAIN/_Hooks"; do
   if [ -d "$dir" ]; then
     pass "$(basename "$dir")/"
   else
     fail "$dir missing"
   fi
 done
+
+# --- 1c. Hook scripts ---
+
+echo ""
+echo "-- Hook scripts --"
+if [ -d "$BRAIN/_Hooks" ]; then
+  hook_count=0
+  for hook in "$BRAIN/_Hooks"/*.sh; do
+    [ -f "$hook" ] || continue
+    hname=$(basename "$hook")
+    if [ -x "$hook" ]; then
+      pass "$hname (executable)"
+    else
+      fail "$hname (not executable — run _setup.sh)"
+    fi
+    hook_count=$((hook_count + 1))
+  done
+  if [ "$hook_count" -eq 0 ]; then
+    warn "_Hooks/ contains no .sh scripts (informational)"
+  fi
+
+  # Verify settings.json registers at least one hook IF scripts exist
+  settings="$BRAIN/_ClaudeSettings/global/settings.json"
+  if [ -f "$settings" ] && [ "$hook_count" -gt 0 ]; then
+    if grep -q '"hooks"' "$settings"; then
+      pass "settings.json declares hooks block"
+    else
+      warn "_Hooks/ has scripts but settings.json has no hooks block (hooks won't run)"
+    fi
+  fi
+fi
 
 # --- 1b. Agent directories ---
 

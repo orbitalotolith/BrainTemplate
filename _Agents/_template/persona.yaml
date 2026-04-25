@@ -50,5 +50,5 @@ memory:
   root: _Memory/__IDENTITY__/
   index: _Memory/__IDENTITY__/MEMORY.md
 
-# Runtime metadata (consumed by AgentDashboard if used)
+# Runtime metadata (consumed by your agent runtime if used)
 context_window: 50

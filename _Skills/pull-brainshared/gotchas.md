@@ -25,7 +25,7 @@ used `rsync --delete` on the entire directory, deleting 9 per-project CLAUDE.md 
 (`MIXED_DIRS="_ClaudeSettings _Memory"`) with `for md in $MIXED_DIRS`. In zsh (Claude Code's
 default shell) this never splits — the `is_mixed` check always returned false, so every
 directory still fell through to `rsync --delete`. Wiped 6 more per-project CLAUDE.md files and
-6 agentdashboard memory files.
+6 per-project memory files.
 
 **Root cause:** Mixed directory protection requires both the concept (MIXED_DIRS) and the
 implementation (array syntax) to be correct. The concept was missing initially, and once added,

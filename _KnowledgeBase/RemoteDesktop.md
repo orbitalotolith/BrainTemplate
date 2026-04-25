@@ -4,7 +4,7 @@ tags: [reference, remote-desktop, architecture, networking, security]
 
 # Remote Desktop Architecture
 
-Architecture patterns and implementation lessons for building a secure remote desktop app (learned from FireTop, as of 2026-03).
+Architecture patterns and implementation lessons for building a secure remote desktop app (as of 2026-03).
 
 ## Architecture: Zero-Knowledge Relay
 
@@ -34,7 +34,7 @@ Relay brokers connections but NEVER sees plaintext screen data. Three components
 - Subsequent sessions verify static keys during Noise handshake
 
 ### Authentication
-- JWT tokens with configurable secret (env var `FIRETOP_JWT_SECRET`)
+- JWT tokens with configurable secret (env var `<APP>_JWT_SECRET`)
 - Rate limiting via `governor` crate (keyed by IP, 5 attempts/minute)
 - In release builds: fail hard without JWT secret (no default fallback)
 - Token expiry: 2 hours for production, configurable

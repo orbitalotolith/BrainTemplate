@@ -131,6 +131,34 @@ setup_claude() {
   ln -sfn "$CONFIG/global/settings.json" "$CLAUDE_DIR/settings.json"
   echo "  ✓ ~/.claude/settings.json → $CONFIG/global/settings.json"
 
+  # Hooks: ensure all _Hooks/*.sh scripts are executable. Hook commands are
+  # referenced by absolute path from settings.json — no symlink needed.
+  if [ -d "$BRAIN/_Hooks" ]; then
+    local hook_count=0
+    for hook in "$BRAIN/_Hooks"/*.sh; do
+      [ -f "$hook" ] || continue
+      chmod +x "$hook"
+      hook_count=$((hook_count + 1))
+    done
+    if [ "$hook_count" -gt 0 ]; then
+      echo "  ✓ _Hooks: $hook_count script(s) marked executable"
+    fi
+
+    # Sanity check: settings.json hook commands should reference paths under
+    # this Brain. Warn (not fail) if any reference a different Brain location —
+    # cross-machine setup may need a per-machine override in settings.local.json.
+    if grep -q '"hooks"' "$CONFIG/global/settings.json" 2>/dev/null; then
+      local bad_paths
+      bad_paths=$(grep -oE '"command"[[:space:]]*:[[:space:]]*"[^"]*_Hooks/[^"]*"' "$CONFIG/global/settings.json" \
+                  | grep -v "$BRAIN" || true)
+      if [ -n "$bad_paths" ]; then
+        echo "  ⚠ settings.json hook command references a Brain path other than $BRAIN:"
+        echo "$bad_paths" | sed 's/^/      /'
+        echo "    If this is the wrong machine, add a per-machine override in ~/.claude/settings.local.json."
+      fi
+    fi
+  fi
+
   # Skills (symlink — Brain/_Skills/ is the single source of truth)
   if [ -d "$CLAUDE_DIR/skills" ] && [ ! -L "$CLAUDE_DIR/skills" ]; then
     rm -rf "$CLAUDE_DIR/skills"

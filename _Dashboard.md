@@ -19,8 +19,7 @@ SORT file.name ASC
 
 | Project | Client | Status |
 |---------|--------|--------|
-| [[_Docs/passwordmanager/\|VibeVault]] | Personal/Lab | Active |
-| [[_Docs/dimensionstudio/\|Dimension Studio]] | Clients/Mercana | Active |
+| [[_Docs/<slug>/\|<Project Name>]] | <Category> | Active |
 
 ## Recent Dev Log Entries
 

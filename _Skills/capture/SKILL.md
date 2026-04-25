@@ -1,6 +1,6 @@
 ---
 name: capture
-description: Use when new knowledge surfaces mid-session and needs to be written to _Status.md, _KnowledgeBase/, _Memory/, _Profile/, or _Agents/<identity>/ — also triggered after root-causing a bug, making an architectural decision, discovering a platform quirk, or hearing user-preference/feedback. Invoked directly by the user or silently by /save-session and /save-lightweight.
+description: Use when new knowledge surfaces mid-session and needs to be written to _Status.md, _KnowledgeBase/, _Memory/, _Profile/, or _Agents/<agent>/ — also triggered after root-causing a bug, making an architectural decision, discovering a platform quirk, or hearing user-preference/feedback. Invoked directly by the user or silently by /save-session and /save-lightweight.
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Bash, Read, Write, Edit, AskUserQuestion
@@ -19,7 +19,7 @@ Three modes:
 - **sweep** — `/capture` or `/capture sweep` — interactive scan of the conversation, present candidates, route confirmed ones
 - **silent** — `/capture <type> "<text>" --silent ...` — non-interactive write, used by save-session / save-lightweight
 
-Types: `gotcha` | `decision` | `kb` | `memory` | `profile` | `oto`
+Types: `gotcha` | `decision` | `kb` | `memory` | `profile` | `agent`
 
 ## Arguments
 
@@ -32,8 +32,9 @@ Types: `gotcha` | `decision` | `kb` | `memory` | `profile` | `oto`
 | `--name=<s>` | memory | Snake-case slug for filename. Required in silent mode. |
 | `--file=<s>` | profile | `preferences.md` \| `business.md` \| `skills.md` \| `identity.md`. Required. |
 | `--section=<s>` | profile | Section heading to replace (in-place). Required in silent mode. |
-| `--target=<s>` | oto | `persona.yaml` \| `standing-context.md` \| `constraints.md`. Required. |
-| `--field=<s>` | oto | Field or heading to replace. Required. |
+| `--target=<s>` | agent | `persona.yaml` \| `standing-context.md` \| `constraints.md`. Required. |
+| `--field=<s>` | agent | Field or heading to replace. Required. |
+| `--agent=<slug>` | agent | Override agent slug auto-detection. Required when more than one `_Agents/<slug>/` exists. |
 | `--date=<YYYY-MM-DD>` | gotcha, decision, kb | Override today's date (rare). |
 
 ## Process
@@ -158,11 +159,12 @@ In silent mode, rule d is not available — if slug cannot be resolved, fail lou
 - **Post-write:** update the `updated:` frontmatter date to today.
 - **Confirm:** `Captured profile → _Profile/<file>.md (section: <heading>)`
 
-#### oto
+#### agent
 
-- **Dest:** `$BRAIN/_Agents/oto/<target>` where `<target>` ∈ {`persona.yaml`, `standing-context.md`, `constraints.md`}.
+- **Dest:** `$BRAIN/_Agents/<agent>/<target>` where `<target>` ∈ {`persona.yaml`, `standing-context.md`, `constraints.md`}.
+- **Agent slug resolution:** list `_Agents/*/` (excluding `_template`). If exactly one subdir, use it. If multiple, require `--agent=<slug>`. If zero, fail loud (no agent configured in this Brain).
 - **Behavior:** field-by-field edit. For `persona.yaml`, edit the single YAML field named by `--field`. For the markdown files, replace the section body named by `--field`.
-- **MUST NOT** write to `$BRAIN/_Agents/oto/memory/` — that is oto's private scratchpad.
+- **MUST NOT** write to `$BRAIN/_Agents/<agent>/memory/` — that is the agent's private scratchpad.
 - **Field resolution:**
   - Interactive: `AskUserQuestion` listing available fields/headings in the target.
   - Silent: `--field` required; fail loud.
@@ -170,7 +172,7 @@ In silent mode, rule d is not available — if slug cannot be resolved, fail lou
 - **Pre-write:** read the file; surface current value.
   - Interactive: present diff via `AskUserQuestion` preview; accept / edit / cancel.
   - Silent: replace the field / section body with the provided text.
-- **Confirm:** `Captured oto → _Agents/oto/<target> (field: <field>)`
+- **Confirm:** `Captured agent → _Agents/<agent>/<target> (field: <field>)`
 
 ### 4. Sweep Mode
 
@@ -190,7 +192,7 @@ Walk the conversation. For each candidate signal, create a candidate record (typ
 | User corrected Claude's behavior | memory (feedback) |
 | Cross-project workflow pattern ("you always want X") | memory (project, slug=brain) |
 | User preference / identity / business revealed | profile |
-| Oto behavior correction | oto |
+| Agent behavior correction | agent |
 
 Deduplicate against existing `_Status.md`, target KB file, and `_Memory/<slug>/MEMORY.md` index.
 
@@ -210,7 +212,7 @@ If more than 10 candidates exist, print `… and N more below the threshold — 
 After all candidates processed:
 
 ```
-Captured N/M candidates (G gotchas, D decisions, K kb, Mem memories, P profile, O oto)
+Captured N/M candidates (G gotchas, D decisions, K kb, Mem memories, P profile, A agent)
 <cap warnings if any>
 <prune candidates if any>
 ```
@@ -243,7 +245,7 @@ Captured <type> → <path> [optional metadata]
 ### Sweep mode
 
 ```
-Captured N/M candidates (G gotchas, D decisions, K kb, Mem memories, P profile, O oto)
+Captured N/M candidates (G gotchas, D decisions, K kb, Mem memories, P profile, A agent)
 <cap warnings if any>
 <prune candidates if any>
 ```
@@ -260,7 +262,7 @@ ERROR: <single-line reason>
 - **Silent mode must not prompt.** Every `--silent` invocation is expected to complete without user interaction. A missing required flag is a fatal error, not a prompt.
 - **Interactive mode confirms every item.** One `AskUserQuestion` per item. Bulk interactive writes are not supported.
 - **Dates are required.** Every `_Status.md` and KB entry carries a date prefix or version/context tag. If `--date` is passed, use it; otherwise use today (`$(date +%Y-%m-%d)`).
-- **Profile and oto are edit-in-place.** Never append. Always replace a specified section or field.
-- **Never write to `_Agents/oto/memory/`.** That is oto's private scratchpad.
+- **Profile and agent are edit-in-place.** Never append. Always replace a specified section or field.
+- **Never write to `_Agents/<agent>/memory/`.** That is the agent's private scratchpad.
 - **Cap warnings are informational, not blocking.** `/capture` always writes the entry. The warning line points the user at `/status-audit`.
 - **Prune is surface-only in silent mode.** Never auto-delete KB entries when called by save-session; list prune candidates and let the user decide.

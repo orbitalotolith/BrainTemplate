@@ -69,13 +69,13 @@ If pre-flight fails, stop and surface the error to the user.
 
 Use **AskUserQuestion** to collect identity values in one call. Phrase the questions plainly:
 
-1. **Identity slug** — short lowercase name (e.g. `chum`, `rogue`). Used for `SYNC_IDENTITY`, `_Agents/<slug>/` directory, and commit attribution. Free text via "Other".
-2. **Display name** — title-case version (e.g. `Chum`). Used in persona greeting and commit messages.
+1. **Identity slug** — short lowercase name (e.g. `alice`, `bob`). Used for `SYNC_IDENTITY`, `_Agents/<slug>/` directory, and commit attribution. Free text via "Other".
+2. **Display name** — title-case version (e.g. `Alice`). Used in persona greeting and commit messages.
 3. **BrainShared owner** — GitHub org/user that hosts BrainShared. Default to whatever the existing `_sync.conf.template` shows; offer the default + "Other".
 4. **Brain repo owner** — GitHub user that will host THIS Brain. Options: "Same as BrainShared owner" / "Different — enter username via Other".
 
 After collecting answers, derive:
-- `BRAIN_REPO_NAME = "Brain<DisplayName>"` (e.g. `BrainChum`)
+- `BRAIN_REPO_NAME = "Brain<DisplayName>"` (e.g. `BrainAlice`)
 - `BRAIN_REMOTE = "git@github.com:<brain-repo-owner>/$BRAIN_REPO_NAME.git"`
 - `SHARED_REMOTE = "git@github.com:<brainshared-owner>/BrainShared.git"`
 
@@ -151,7 +151,7 @@ echo "Copied. Review _Agents/<identity-slug>/ and edit any other identity-specif
 **Option 3 (scp from remote):**
 ```bash
 SSH_HOST="<user-supplied>"   # e.g. <user>@my-mac.local
-SRC_IDENTITY="<user-supplied>"  # e.g. oto
+SRC_IDENTITY="<user-supplied>"  # e.g. your-agent-name
 SRC_PATH="<user-supplied path on remote, default ~/Development/Brain<SrcName>/_Agents/$SRC_IDENTITY>"
 
 # Validate SSH first; if it fails, fall back to option 1 with a notice
