@@ -319,7 +319,7 @@ Organize into dependency-ordered phases:
 
 #### 4b. Write Plan File
 
-Use the **Write** tool to save to `$BRAIN/_Docs/brain/Plans/YYYY-MM-DD-<description>.md` using superpowers format:
+Use the **Write** tool to save to `$BRAIN/_Docs/brain/Plans/<description>-YYYY-MM-DD.md` using superpowers format:
 
 ```markdown
 # <Description> Migration Plan
@@ -395,7 +395,7 @@ Never use "repeat for all projects" — enumerate each one with its specific pat
 ```
 ## Migration Plan Generated
 
-Saved: _Docs/brain/Plans/YYYY-MM-DD-<description>.md
+Saved: _Docs/brain/Plans/<description>-YYYY-MM-DD.md
 
 Phases: N (0 through G)
 Total steps: M
@@ -404,7 +404,7 @@ Estimated scope: <brief characterization>
 
 ## Next Steps
 
-1. Review the plan: Read _Docs/brain/Plans/YYYY-MM-DD-<description>.md
+1. Review the plan: Read _Docs/brain/Plans/<description>-YYYY-MM-DD.md
 2. Execute: Run superpowers:executing-plans on the plan file
 3. After execution: Run /brain-check to validate
 ```
@@ -422,7 +422,7 @@ If no: end with the plan file path for later execution.
 
 ## Output
 
-- **Migration plan file** — `_Docs/brain/Plans/YYYY-MM-DD-<description>.md` in superpowers-compatible format
+- **Migration plan file** — `_Docs/brain/Plans/<description>-YYYY-MM-DD.md` in superpowers-compatible format
 - **Terminal summary** — diff categories, impact scope, plan location
 - No direct file modifications — all changes happen during plan execution
 

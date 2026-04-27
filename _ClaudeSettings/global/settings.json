@@ -61,8 +61,11 @@
   "promptSuggestionEnabled": false,
   "autoUpdatesChannel": "stable",
   "minimumVersion": "2.1.85",
+  "showThinkingSummaries": true,
+  "skipDangerousModePermissionPrompt": true,
   "voiceEnabled": true,
   "defaultView": "transcript",
-  "showThinkingSummaries": true,
-  "skipDangerousModePermissionPrompt": true
+  "theme": "dark-ansi",
+  "fileCheckpointingEnabled": false,
+  "remoteControlAtStartup": false
 }
