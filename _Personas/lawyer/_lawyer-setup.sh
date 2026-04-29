@@ -78,22 +78,30 @@ read -p "Your name: " USER_NAME
 read -p "Practice area (e.g., 'corporate transactions', 'litigation'): " PRACTICE_AREA
 read -p "Typical matter types (comma-separated, e.g., 'contract,advisory'): " MATTER_TYPES
 
-# Seed _Profile/index.md from Profile-skeleton.md (skip if exists to preserve user edits on re-run)
-if [ -f "$BRAIN/_Profile/index.md" ]; then
-  echo "  ⊘ _Profile/index.md already exists — keeping user edits (delete to reseed)"
+# Seed _Profile/index.md from Profile-skeleton.md.
+# Skip if file exists AND is not a placeholder (preserves user edits on re-run).
+# BrainTemplate ships _Profile/index.md as a stub containing "TODO: fill in your" — that's
+# treated as not-yet-seeded so first-run setup can replace it.
+PROFILE_INDEX="$BRAIN/_Profile/index.md"
+SKELETON="$BRAIN/Profile-skeleton.md"
+PLACEHOLDER_MARKER="TODO: fill in your"
+
+if [ -f "$PROFILE_INDEX" ] && ! grep -q "$PLACEHOLDER_MARKER" "$PROFILE_INDEX"; then
+  echo "  ⊘ _Profile/index.md has user content — keeping (delete to reseed)"
 else
-  if [ ! -f "$BRAIN/Profile-skeleton.md" ]; then
-    echo "FATAL: Profile-skeleton.md not found at $BRAIN/Profile-skeleton.md. Lawyer payload may be incomplete."
+  if [ ! -f "$SKELETON" ]; then
+    echo "FATAL: Profile-skeleton.md not found at $SKELETON. Lawyer payload may be incomplete."
     exit 1
   fi
   NOW=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-  PROFILE_CONTENT=$(cat "$BRAIN/Profile-skeleton.md")
+  PROFILE_CONTENT=$(cat "$SKELETON")
   PROFILE_CONTENT="${PROFILE_CONTENT//\{\{CREATED\}\}/$NOW}"
   PROFILE_CONTENT="${PROFILE_CONTENT//\{\{USER_NAME\}\}/$USER_NAME}"
   PROFILE_CONTENT="${PROFILE_CONTENT//\{\{PRACTICE_AREA\}\}/$PRACTICE_AREA}"
   PROFILE_CONTENT="${PROFILE_CONTENT//\{\{MATTER_TYPES\}\}/$MATTER_TYPES}"
-  printf '%s\n' "$PROFILE_CONTENT" > "$BRAIN/_Profile/index.md"
-  rm -f "$BRAIN/Profile-skeleton.md"  # skeleton consumed; remove to keep vault clean
+  printf '%s\n' "$PROFILE_CONTENT" > "$PROFILE_INDEX"
+  rm -f "$SKELETON"  # skeleton consumed; remove to keep vault clean
+  if [ -f "${PROFILE_INDEX}.bak" ]; then rm -f "${PROFILE_INDEX}.bak"; fi
   echo "  ✓ _Profile/index.md seeded from Profile-skeleton.md"
 fi
 echo ""
