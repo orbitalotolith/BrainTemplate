@@ -3,7 +3,7 @@
 # Delete this file to re-run persona prompt on next _setup.sh run.
 #
 # Schema:
-#   persona              (required) — developer | lawyer | generalist
+#   persona              (required) — developer | lawyer | generalist (case-sensitive, lowercase)
 #   project_term         (required) — what this persona calls a unit of work (project, matter, etc.)
 #   external_path_default (required) — mandatory | optional | none
 #   created              (required) — ISO 8601 UTC timestamp
@@ -13,4 +13,4 @@ persona: developer
 project_term: project
 external_path_default: mandatory
 created: 2026-04-29T00:00:00Z
-template_version: 1.0
+template_version: "1.0"
