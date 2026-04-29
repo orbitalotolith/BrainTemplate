@@ -1,0 +1,42 @@
+# Lawyer persona setup prompts — reference for what _lawyer-setup.sh asks.
+# Source-of-truth is _lawyer-setup.sh; this file documents the intent.
+
+prompts:
+  - id: user_name
+    text: "Your name"
+    required: true
+    target: _Profile/index.md
+
+  - id: practice_area
+    text: "Practice area (e.g., 'corporate transactions', 'litigation')"
+    required: true
+    target: _Profile/index.md
+
+  - id: matter_types
+    text: "Typical matter types (comma-separated, e.g., 'contract,advisory')"
+    required: true
+    target: _Profile/index.md
+
+  - id: create_first_matter
+    text: "Create your first matter now? (Y/n)"
+    required: false
+    default: "Y"
+    triggers: first_matter_flow
+
+first_matter_flow:
+  - id: matter_slug
+    text: "Matter slug (e.g., 'acme-acquisition')"
+    required: true
+
+  - id: client
+    text: "Client name"
+    required: true
+
+  - id: matter_type
+    text: "Type (contract/litigation/advisory/drafting/regulatory)"
+    required: true
+
+  - id: external_folder
+    text: "Create external folder ~/Legal/<slug>/? (Y/n)"
+    required: false
+    default: "Y"
