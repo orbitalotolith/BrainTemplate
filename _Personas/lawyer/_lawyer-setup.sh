@@ -78,8 +78,11 @@ read -p "Your name: " USER_NAME
 read -p "Practice area (e.g., 'corporate transactions', 'litigation'): " PRACTICE_AREA
 read -p "Typical matter types (comma-separated, e.g., 'contract,advisory'): " MATTER_TYPES
 
-# Seed _Profile/index.md
-cat > "$BRAIN/_Profile/index.md" <<EOF
+# Seed _Profile/index.md (skip if exists to preserve user edits on re-run)
+if [ -f "$BRAIN/_Profile/index.md" ]; then
+  echo "  ⊘ _Profile/index.md already exists — keeping user edits (delete to reseed)"
+else
+  cat > "$BRAIN/_Profile/index.md" <<EOF
 ---
 title: User Profile
 type: profile
@@ -103,7 +106,8 @@ created: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
 - Claude Code — terminal-based AI assistant
 - Claude.ai — web-based chat with project context
 EOF
-echo "  ✓ _Profile/index.md seeded"
+  echo "  ✓ _Profile/index.md seeded"
+fi
 echo ""
 
 # Offer first matter
@@ -129,12 +133,15 @@ else
   # Create matter session directory + Status from template
   mkdir -p "$BRAIN/_ActiveSessions/$MATTER_SLUG"
   if [ -f "$BRAIN/_Templates/MatterStatus.md" ]; then
-    sed -e "s/{{SLUG}}/$MATTER_SLUG/g" \
-        -e "s/{{CLIENT}}/$CLIENT/g" \
-        -e "s/{{TYPE}}/$MATTER_TYPE/g" \
-        -e "s|{{EXTERNAL_PATH}}|$EXT_PATH|g" \
-        -e "s/{{CREATED}}/$(date -u +"%Y-%m-%dT%H:%M:%SZ")/g" \
-        "$BRAIN/_Templates/MatterStatus.md" > "$BRAIN/_ActiveSessions/$MATTER_SLUG/_Status.md"
+    # Render Status from template (bash parameter expansion is literal — no sed escaping)
+    TEMPLATE_CONTENT=$(cat "$BRAIN/_Templates/MatterStatus.md")
+    NOW=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    TEMPLATE_CONTENT="${TEMPLATE_CONTENT//\{\{SLUG\}\}/$MATTER_SLUG}"
+    TEMPLATE_CONTENT="${TEMPLATE_CONTENT//\{\{CLIENT\}\}/$CLIENT}"
+    TEMPLATE_CONTENT="${TEMPLATE_CONTENT//\{\{TYPE\}\}/$MATTER_TYPE}"
+    TEMPLATE_CONTENT="${TEMPLATE_CONTENT//\{\{EXTERNAL_PATH\}\}/$EXT_PATH}"
+    TEMPLATE_CONTENT="${TEMPLATE_CONTENT//\{\{CREATED\}\}/$NOW}"
+    printf '%s\n' "$TEMPLATE_CONTENT" > "$BRAIN/_ActiveSessions/$MATTER_SLUG/_Status.md"
     echo "  ✓ _ActiveSessions/$MATTER_SLUG/_Status.md created from template"
   else
     echo "  ⚠ MatterStatus.md template not found; created empty _Status.md"
