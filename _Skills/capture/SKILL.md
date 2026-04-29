@@ -65,7 +65,7 @@ If `--slug=<x>` is passed, use it verbatim. Otherwise apply the save-session res
 
 2. Apply resolution rules:
    - **a.** CWD == `$BRAIN` → `brain`.
-   - **b.** CWD under `$BRAIN/_ActiveSessions/<slug>/*` (or `_Parked`), `_Docs/<slug>/*`, `_Memory/<slug>/*`, `_DevLog/<slug>/*`, `_Workbench/<slug>/*`, `_ClaudeSettings/<slug>/*` → extract slug.
+   - **b.** CWD under `$BRAIN/_ActiveSessions/<slug>/*` (or `_Parked`), `_AgentTasks/<slug>/*`, `_Memory/<slug>/*`, `_DevLog/<slug>/*`, `_Workbench/<slug>/*`, `_ClaudeSettings/<slug>/*` → extract slug.
    - **c.** CWD under `~/Development/` but not `$BRAIN` → match CODE_PATH (longest prefix wins).
    - **d.** Cross-cutting Brain subdirs (`_Skills/`, `_KnowledgeBase/`, `_Profile/`, `_Agents/`, or other) → `AskUserQuestion` with all slugs (default `brain`) + "none — cancel".
    - **e.** No match → error and stop.

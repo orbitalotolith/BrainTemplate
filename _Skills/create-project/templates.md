@@ -17,7 +17,7 @@
 ├── config/                      # App configuration
 └── project_files/               # Development support (never shipped)
     ├── brain/                   # Brain vault symlink
-    │   ├── _Docs/               # Symlink → Brain _Docs/<slug>/ (plans, reports, specs)
+    │   ├── _AgentTasks/               # Symlink → Brain _AgentTasks/<slug>/ (plans, reports, specs)
     │   ├── _Status.md           # Living project knowledge
     │   ├── DevLog/              # Write-once archive
     │   └── Workbench/           # Scratch space

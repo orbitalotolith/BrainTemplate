@@ -212,7 +212,7 @@ These are non-negotiable:
 
 **Companion files:** `report-template.md` — full report format, recommendation ID prefixes, and status values.
 
-Use the **Write** tool to create the stateful report at `$BRAIN_ROOT/_Docs/<slug>/Reports/refactor-YYYY-MM-DD.md`. See `report-template.md` for the full report format.
+Use the **Write** tool to create the stateful report at `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/refactor-YYYY-MM-DD.md`. See `report-template.md` for the full report format.
 
 Present the summary to the user after writing the report.
 
@@ -221,7 +221,7 @@ Present the summary to the user after writing the report.
 When the user requests application (`--apply` or `--apply-all`):
 
 1. Read the most recent refactor report for this project
-2. Read `$BRAIN_ROOT/_Docs/<slug>/Reports/audit-context.json` if it exists. Note all files changed by `security-audit` or `code-audit` and the security reason for each change. Do not apply refactorings that would undo security fixes without explicit user confirmation.
+2. Read `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/audit-context.json` if it exists. Note all files changed by `security-audit` or `code-audit` and the security reason for each change. Do not apply refactorings that would undo security fixes without explicit user confirmation.
 3. For `--apply <ID>`: find the specific recommendation
 4. For `--apply-all`: collect all RECOMMENDED verdicts, sorted by severity (CRITICAL first)
 5. For each recommendation to apply:
@@ -232,12 +232,12 @@ When the user requests application (`--apply` or `--apply-all`):
    e. If the build breaks, fix it while preserving the refactoring intent
    f. Update the report: set the recommendation's Status to `APPLIED` and update the summary table counts
 6. After all changes, run the full build one final time
-7. Append an entry to `$BRAIN_ROOT/_Docs/<slug>/Reports/audit-context.json` (create file if it doesn't exist):
+7. Append an entry to `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/audit-context.json` (create file if it doesn't exist):
    ```json
    {
      "skill": "refactor",
      "timestamp": "ISO-8601",
-     "reportFile": "$BRAIN_ROOT/_Docs/<slug>/Reports/refactor-YYYY-MM-DD.md",
+     "reportFile": "$BRAIN_ROOT/_AgentTasks/<slug>/Reports/refactor-YYYY-MM-DD.md",
      "changes": [
        {
          "file": "path/to/file",
@@ -257,7 +257,7 @@ When the user requests application (`--apply` or `--apply-all`):
 
 When the user says "continue applying refactor recommendations", uses `--resume`, or references an existing refactor report:
 
-1. Read the most recent `$BRAIN_ROOT/_Docs/<slug>/Reports/refactor-*.md` file
+1. Read the most recent `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/refactor-*.md` file
 2. Parse the recommendations — filter to `OPEN` status
 3. Sort by severity: CRITICAL → HIGH → MEDIUM → LOW → COSMETIC
 4. Present the remaining `OPEN` recommendations summary to the user

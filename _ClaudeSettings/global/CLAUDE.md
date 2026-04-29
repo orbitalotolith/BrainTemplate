@@ -29,8 +29,8 @@ Never assume a `release/` directory exists.
 | Project registry | `_projects.conf` |
 | User profile | `_Profile/index.md` (subfiles: identity, business, skills, preferences) |
 | Vault architecture | `_HowThisWorks.md` |
-| Plans | `_Docs/<slug>/Plans/` |
-| Reports | `_Docs/<slug>/Reports/` |
+| Plans | `_AgentTasks/<slug>/Plans/` |
+| Reports | `_AgentTasks/<slug>/Reports/` |
 
 All paths relative to `$BRAIN_ROOT`. `<slug>` = project slug from `_projects.conf`.
 

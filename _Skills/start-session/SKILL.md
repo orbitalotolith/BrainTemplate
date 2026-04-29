@@ -37,7 +37,7 @@ Use the **Bash** tool to resolve the Brain root and current working directory.
    Extract `<slug>` directly from the path for:
    - `$BRAIN/_ActiveSessions/<slug>/*`
    - `$BRAIN/_ActiveSessions/_Parked/<slug>/*`
-   - `$BRAIN/_Docs/<slug>/*`
+   - `$BRAIN/_AgentTasks/<slug>/*`
    - `$BRAIN/_Memory/<slug>/*`
    - `$BRAIN/_DevLog/<slug>/*`
    - `$BRAIN/_Workbench/<slug>/*`
@@ -71,7 +71,7 @@ if [ "$COLLAB" = "collab" ]; then
   code=$(grep "^${slug}|" "$BRAIN/_projects.conf" | cut -d'|' -f3)
   repo_brain="$HOME/Development/$code/project_files/brain"
   broken=""
-  for item in CLAUDE.md session.md _Status.md memory DevLog Workbench _Docs; do
+  for item in CLAUDE.md session.md _Status.md memory DevLog Workbench _AgentTasks; do
     t="$repo_brain/$item"
     [ -e "$t" ] && [ ! -L "$t" ] && broken="$broken $item"
   done

@@ -106,7 +106,7 @@ mkdir -p "$BRAIN/_Memory/$SLUG"
 mkdir -p "$BRAIN/_ActiveSessions/$SLUG"
 mkdir -p "$BRAIN/_DevLog/$SLUG"
 mkdir -p "$BRAIN/_Workbench/$SLUG"
-mkdir -p "$BRAIN/_Docs/$SLUG/Plans" "$BRAIN/_Docs/$SLUG/Reports"
+mkdir -p "$BRAIN/_AgentTasks/$SLUG/Plans" "$BRAIN/_AgentTasks/$SLUG/Reports"
 ```
 
 Use the **Bash** tool to copy the project CLAUDE.md:
@@ -162,7 +162,7 @@ git add _ActiveSessions/<SLUG>/ \
         _Memory/<SLUG>/ \
         _DevLog/<SLUG>/ \
         _Workbench/<SLUG>/ \
-        _Docs/<SLUG>/ \
+        _AgentTasks/<SLUG>/ \
         _projects.conf
 git commit -m "feat(vault): add <ProjectName> project"
 ```

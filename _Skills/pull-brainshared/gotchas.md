@@ -38,7 +38,7 @@ untouched. (2) Changed from space-delimited string to a shell array:
 in both shells.
 
 **Also removed:** Stale path detection. The premise ("not in BrainShared = stale") was wrong
-because the local Brain has many legitimate paths that were never shared (`_Docs/`, `_Dashboard.md`,
+because the local Brain has many legitimate paths that were never shared (`_AgentTasks/`, `_Dashboard.md`,
 `CLAUDE.md` symlink, etc.).
 
 **Rules:**

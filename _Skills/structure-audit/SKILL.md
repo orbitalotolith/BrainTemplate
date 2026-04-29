@@ -134,7 +134,7 @@ Remove directories from the list that match the known-acceptable set:
 
 **Explicitly NOT acceptable at repo root** (see UPS-004 and UPS-005 for canonical targets):
 
-- `docs/` — belongs in `project_files/brain/_Docs/` (UPS-004)
+- `docs/` — split: human-authored content (specs, designs, proposals, research drafts) belongs in `project_files/brain/_Workbench/`; AI execution plans and audit reports belong in `project_files/brain/_AgentTasks/` (UPS-004)
 - `src/`, `lib/` — UPS: *"Source code goes in `core/` and/or `clients/` — never loose at root"*
 - `scripts/`, `tools/` — dev scripts live in `project_files/tools/`
 - `assets/` — source/design assets go in `project_files/assets/`; shipped assets go inside a client dir
@@ -202,13 +202,13 @@ Only findings that pass the context check without any signals remain `[error]`.
 
 #### 3c-bis. UPS-004 — Docs Directory at Repo Root
 
-Documentation does not live at the code repo root — it lives in Brain and is accessed via the `project_files/brain/_Docs/` symlink. If the top-level directory list contains a `docs/` (case-insensitive), emit UPS-004 (error):
+Documentation does not live at the code repo root — it lives in Brain and is accessed via two symlinks: `project_files/brain/_Workbench/` for human-authored content (specs, design docs, proposals, research drafts) and `project_files/brain/_AgentTasks/` for AI execution plans and audit reports. If the top-level directory list contains a `docs/` (case-insensitive), emit UPS-004 (error):
 
 ```
-[error] UPS-004: `docs/` at repo root — documentation belongs in Brain. Move contents into `project_files/brain/_Docs/` (symlink resolves to `<Brain>/_Docs/<slug>/`), then delete the repo-root `docs/`.
+[error] UPS-004: `docs/` at repo root — documentation belongs in Brain. Move human content (specs, designs, proposals) into `project_files/brain/_Workbench/` (symlink resolves to `<Brain>/_Workbench/<slug>/`); move AI execution plans and audit reports into `project_files/brain/_AgentTasks/` (symlink resolves to `<Brain>/_AgentTasks/<slug>/`). Then delete the repo-root `docs/`.
 ```
 
-Rationale (from `_HowThisWorks.md`): the `_Docs/` symlink provides access from the code repo to canonical Brain-backed docs; there is no separate `docs/` at project root. Public-facing docs that *must* ship with the code (e.g., GitHub Pages site, API reference published from the repo) are the only legitimate exception — flag as `[review]` instead of `[error]` if a `docs/` contains a recognized publishing config (`mkdocs.yml`, `docusaurus.config.js`, `_config.yml` for Jekyll, `book.toml` for mdBook).
+Rationale (from `_HowThisWorks.md` and `_Memory/brain/feedback_no_spec_docs.md`): `_Workbench/` holds human-authored content visible alongside other vault notes in Obsidian; `_AgentTasks/` holds AI execution plans and audit reports kept separate so neither material drowns the other. There is no separate `docs/` at project root. Public-facing docs that *must* ship with the code (e.g., GitHub Pages site, API reference published from the repo) are the only legitimate exception — flag as `[review]` instead of `[error]` if a `docs/` contains a recognized publishing config (`mkdocs.yml`, `docusaurus.config.js`, `_config.yml` for Jekyll, `book.toml` for mdBook).
 
 #### 3c-ter. UPS-005 — Misplaced Conventional Directory
 

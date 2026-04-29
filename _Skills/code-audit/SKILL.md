@@ -48,12 +48,12 @@ This audit does real work. When conventions are wrong, rename them. When code is
    - **Filesystem scan:** If no structure section, scan for `package.json`, `Cargo.toml`, `Package.swift`, `go.mod`, `pyproject.toml` — source directories = directories containing these manifests
 2. Read project-level `CLAUDE.md` for architecture, naming conventions, and patterns
 3. Read security and architectural context:
-   a. **Security context:** Read `$BRAIN_ROOT/_Docs/<slug>/Reports/audit-context.json` if it exists. Note all files changed by `security-audit` and the security reason for each change. Read the most recent `$BRAIN_ROOT/_Docs/<slug>/Reports/security-*.md` report to understand the full security picture.
+   a. **Security context:** Read `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/audit-context.json` if it exists. Note all files changed by `security-audit` and the security reason for each change. Read the most recent `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/security-*.md` report to understand the full security picture.
    b. **Architectural context:** Read `project_files/brain/_Status.md` (if it exists) for Active Decisions — these reveal recent architectural pivots. Scan `git log --oneline -20` for recent large changes. Understanding the current design intent prevents refactoring toward an outdated architecture.
    c. **Constraint: Security changes are sacred.** If security-audit changed a file and code-audit finds an issue in the same file caused by the security fix — fix it in a way that preserves the security remediation. Add a Decision Log note. Never revert a security fix to resolve a code quality issue. No exceptions.
 4. Determine which audit categories apply based on the project type
 5. Skip categories that don't apply (e.g., skip shared types for single-component CLI tools)
-6. Create `$BRAIN_ROOT/_Docs/<slug>/Reports/` directory if it doesn't exist (resolve slug from `_projects.conf`)
+6. Create `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/` directory if it doesn't exist (resolve slug from `_projects.conf`)
 
 ### Audit Categories
 
@@ -254,7 +254,7 @@ Before relocating, present the full relocation plan to the user via `AskUserQues
    - **File/function existence:** use Glob or Grep to confirm before referencing in a finding.
    - **Configuration state:** read the actual config file or build output, don't assume from naming or convention.
    - A finding based on inference rather than verified evidence is a false finding. Drop it.
-5. **Compile report** — use the **Write** tool to create `$BRAIN_ROOT/_Docs/<slug>/Reports/audit-YYYY-MM-DD.md` in the unified report format.
+5. **Compile report** — use the **Write** tool to create `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/audit-YYYY-MM-DD.md` in the unified report format.
 6. **Verify compilation** — after all fixes, run the project's typecheck/build command (detected from project config). If it fails, identify which fix caused the breakage, fix the regression, and re-run the build. Never leave the codebase in a broken state after an audit.
 7. **Prioritize findings:** HIGH → MEDIUM → LOW
 8. In default mode: present the report and ask the user what to fix (see Post-Audit)
@@ -266,7 +266,7 @@ Before relocating, present the full relocation plan to the user via `AskUserQues
 
 ## Output
 
-All audit runs produce a stateful report at `$BRAIN_ROOT/_Docs/<slug>/Reports/audit-YYYY-MM-DD.md`. See `report-template.md` for the full report format.
+All audit runs produce a stateful report at `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/audit-YYYY-MM-DD.md`. See `report-template.md` for the full report format.
 
 ### Post-Audit
 
@@ -281,13 +281,13 @@ When fixing issues:
 2. **Then fix remaining instances** — in severity order: HIGH → MEDIUM → LOW. After the systemic fix is in place, these are cleanup of existing occurrences.
 3. After each fix, update the finding's status to `FIXED` in the report file
 4. Update the summary table counts after each fix
-5. After all fixes, append an entry to `$BRAIN_ROOT/_Docs/<slug>/Reports/audit-context.json` documenting code-audit's changes (same format as security-audit). This lets ship-check and future audit runs see the full change history.
+5. After all fixes, append an entry to `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/audit-context.json` documenting code-audit's changes (same format as security-audit). This lets ship-check and future audit runs see the full change history.
 
 ## Resume
 
 When the user says "continue fixing audit findings", uses `--resume`, or references an existing audit report:
 
-1. Read the most recent `$BRAIN_ROOT/_Docs/<slug>/Reports/audit-*.md` file (legacy fallback: `.claude/reports/audit-*.md`)
+1. Read the most recent `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/audit-*.md` file (legacy fallback: `.claude/reports/audit-*.md`)
 2. Parse the findings table — filter to `OPEN` findings
 3. Sort by severity: HIGH → MEDIUM → LOW
 4. Present the remaining `OPEN` findings summary to the user

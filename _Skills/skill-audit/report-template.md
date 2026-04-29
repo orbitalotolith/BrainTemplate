@@ -37,7 +37,7 @@ Fix? (all / errors only / report only)
 
 Use the full summary table but only show FIT/INV/SCP/CMP/BHV/GOT columns.
 
-## Report File (`$BRAIN_ROOT/_Docs/<slug>/Reports/skill-audit-YYYY-MM-DD.md`)
+## Report File (`$BRAIN_ROOT/_AgentTasks/<slug>/Reports/skill-audit-YYYY-MM-DD.md`)
 
 ```markdown
 # Skill Audit Report — YYYY-MM-DD

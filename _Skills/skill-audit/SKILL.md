@@ -265,9 +265,9 @@ Reference `report-template.md` for output formats.
 
 #### Write Report File
 
-Create `$BRAIN_ROOT/_Docs/<slug>/Reports/skill-audit-YYYY-MM-DD.md` using the report file template:
+Create `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/skill-audit-YYYY-MM-DD.md` using the report file template:
 
-1. Ensure `$BRAIN_ROOT/_Docs/<slug>/Reports/` directory exists (create if not, resolve slug from `_projects.conf`)
+1. Ensure `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/` directory exists (create if not, resolve slug from `_projects.conf`)
 3. Write the report with all findings and recommendations
 4. Set status for each finding: `OPEN` (unfixed), `SUPPRESSED` (in suppressions.md)
 
@@ -420,7 +420,7 @@ If "skip": proceed without logging.
 The skill produces:
 
 1. **Terminal summary** — printed at the end of every run (format varies by mode, see `report-template.md`)
-2. **Report file** — `$BRAIN_ROOT/_Docs/<slug>/Reports/skill-audit-YYYY-MM-DD.md` (written in full and lint modes)
+2. **Report file** — `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/skill-audit-YYYY-MM-DD.md` (written in full and lint modes)
 3. **Suppressions updates** — `suppressions.md` updated with "keep as-is" decisions (full mode only)
 4. **Repaired skill files** — modified `SKILL.md` files and renamed directories (full and lint modes, after user approval)
 5. **Synced reference files** — `key-to-dev.md` and `_HowThisWorks.md` updated to reflect changes (full and lint modes, after user approval)

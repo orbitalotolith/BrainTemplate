@@ -80,7 +80,7 @@ mkdir -p "$BRAIN/_ActiveSessions/$SLUG"
 mkdir -p "$BRAIN/_Memory/$SLUG"
 mkdir -p "$BRAIN/_DevLog/$SLUG"
 mkdir -p "$BRAIN/_Workbench/$SLUG"
-mkdir -p "$BRAIN/_Docs/$SLUG"
+mkdir -p "$BRAIN/_AgentTasks/$SLUG"
 ```
 
 Also ensure the Claude Code memory symlink exists:
@@ -102,11 +102,11 @@ if [ ! -L "$repo/CLAUDE.md" ]; then
 fi
 ```
 
-Create the `_Docs` symlink:
+Create the `_AgentTasks` symlink:
 
 ```bash
-if [ ! -L "$repo/project_files/brain/_Docs" ]; then
-  ln -sfn "$BRAIN/_Docs/$SLUG" "$repo/project_files/brain/_Docs"
+if [ ! -L "$repo/project_files/brain/_AgentTasks" ]; then
+  ln -sfn "$BRAIN/_AgentTasks/$SLUG" "$repo/project_files/brain/_AgentTasks"
 fi
 ```
 
@@ -309,7 +309,7 @@ Partner: [<identity> last active <date> | no partner sessions]
 - Always restore symlinks and set assume-unchanged after pull — even if interrupted
 - If interrupted: `_setup.sh` detects real files and recreates symlinks
 - Shared files: CLAUDE.md, session.md, _Status.md, memory/, DevLog/, Workbench/
-- Never pull _Docs — those are Brain-only content
+- Never pull _AgentTasks — those are Brain-only content
 - The `brain` slug is not supported — use `/pull-brainshared` instead
 - assume-unchanged flags remain SET during git pull; clear only after pull completes
 - Verification display with per-file diffs shown before writing to Brain; user confirms

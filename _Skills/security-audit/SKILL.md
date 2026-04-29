@@ -37,7 +37,7 @@ Known failure modes inform execution — avoid repeating past mistakes.
 2. Read project-level `CLAUDE.md` for architecture, naming conventions, and patterns
 3. Determine which audit categories apply based on the project type
 4. Skip categories that don't apply (e.g., skip DPL- Tauri checks for a web app)
-5. Create `$BRAIN_ROOT/_Docs/<slug>/Reports/` directory if it doesn't exist (resolve slug from `_projects.conf`)
+5. Create `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/` directory if it doesn't exist (resolve slug from `_projects.conf`)
 
 ### Audit Categories
 
@@ -168,7 +168,7 @@ List licenses of all dependencies:
    - Multiple outdated deps → no dependency update process
 
    Each class gets a root cause entry (prefixed `RC-`) in the report. Individual findings link back to their root cause. A single finding can still have a root cause if the systemic gap is real.
-4. **Compile report** — write all findings to `$BRAIN_ROOT/_Docs/<slug>/Reports/security-YYYY-MM-DD.md` in the unified report format.
+4. **Compile report** — write all findings to `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/security-YYYY-MM-DD.md` in the unified report format.
 5. **Prioritize findings:** CRITICAL → HIGH → MEDIUM → LOW
 6. In default mode: present the report and ask the user what to fix (see Post-Audit)
 7. In `--dry-run` mode: write the report and stop — do not fix anything
@@ -187,7 +187,7 @@ Assign severity directly:
 
 ## Output
 
-All audit runs produce a stateful report at `$BRAIN_ROOT/_Docs/<slug>/Reports/security-YYYY-MM-DD.md`. See `report-template.md` for the full report format.
+All audit runs produce a stateful report at `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/security-YYYY-MM-DD.md`. See `report-template.md` for the full report format.
 
 ### Post-Audit
 
@@ -208,14 +208,14 @@ When fixing issues:
    - Update the finding's detail section with a note about the compilation fix
    - Re-run the build to confirm
    - Never leave the codebase in a broken state after a security audit
-6. **Write audit context** — append an entry to `$BRAIN_ROOT/_Docs/<slug>/Reports/audit-context.json` (create file if it doesn't exist):
+6. **Write audit context** — append an entry to `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/audit-context.json` (create file if it doesn't exist):
    ```json
    {
      "entries": [
        {
          "skill": "security-audit",
          "timestamp": "ISO-8601",
-         "reportFile": "$BRAIN_ROOT/_Docs/<slug>/Reports/security-YYYY-MM-DD.md",
+         "reportFile": "$BRAIN_ROOT/_AgentTasks/<slug>/Reports/security-YYYY-MM-DD.md",
          "changes": [
            {
              "file": "path/to/file",
@@ -236,7 +236,7 @@ When fixing issues:
 
 When the user says "continue fixing security findings", uses `--resume`, or references an existing security audit report:
 
-1. Read the most recent `$BRAIN_ROOT/_Docs/<slug>/Reports/security-*.md` file (legacy fallback: `.claude/reports/security-*.md`)
+1. Read the most recent `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/security-*.md` file (legacy fallback: `.claude/reports/security-*.md`)
 2. Parse the findings table — filter to `OPEN` findings
 3. Sort by severity: CRITICAL → HIGH → MEDIUM → LOW
 4. Present the remaining `OPEN` findings summary to the user

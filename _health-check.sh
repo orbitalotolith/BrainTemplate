@@ -51,7 +51,7 @@ for dir in "$BRAIN/_Workbench" "$BRAIN/_KnowledgeBase" "$BRAIN/_DevLog" \
            "$BRAIN/_ClaudeSettings" "$BRAIN/_Memory" \
            "$BRAIN/_Skills" "$BRAIN/_Templates" \
            "$BRAIN/_ActiveSessions" "$BRAIN/_Profile" \
-           "$BRAIN/_Docs" "$BRAIN/_Agents" \
+           "$BRAIN/_AgentTasks" "$BRAIN/_Agents" \
            "$BRAIN/_Hooks"; do
   if [ -d "$dir" ]; then
     pass "$(basename "$dir")/"
@@ -288,7 +288,7 @@ echo "-- Project doc directories --"
 for i in "${!SLUGS[@]}"; do
   slug="${SLUGS[$i]}"
   code="${CODE_PATHS[$i]}"
-  doc_dir="$BRAIN/_Docs/$slug"
+  doc_dir="$BRAIN/_AgentTasks/$slug"
 
   missing=""
   for subdir in Plans Reports; do
@@ -297,24 +297,24 @@ for i in "${!SLUGS[@]}"; do
     fi
   done
   if [ -n "$missing" ]; then
-    fail "$slug: _Docs/$slug/ missing subdirs:$missing (run _setup.sh)"
+    fail "$slug: _AgentTasks/$slug/ missing subdirs:$missing (run _setup.sh)"
     continue
   fi
 
   if [ "$slug" = "brain" ]; then
-    pass "$slug: _Docs/$slug/ exists with all subdirs"
+    pass "$slug: _AgentTasks/$slug/ exists with all subdirs"
   elif [ ! -d "$DEV/$code" ]; then
     warn "$slug: repo not cloned (skipped doc access check)"
   else
-    # Verify _Docs is accessible via symlink in project_files/brain/
-    access_path="$DEV/$code/project_files/brain/_Docs/Plans"
+    # Verify _AgentTasks is accessible via symlink in project_files/brain/
+    access_path="$DEV/$code/project_files/brain/_AgentTasks/Plans"
     if [ -d "$access_path" ]; then
-      pass "$slug: _Docs accessible via project_files/brain/_Docs/"
+      pass "$slug: _AgentTasks accessible via project_files/brain/_AgentTasks/"
     elif [ -d "$DEV/$code/project_files/brain" ]; then
-      if [ ! -L "$DEV/$code/project_files/brain/_Docs" ]; then
-        warn "$slug: _Docs symlink missing in project_files/brain/ (run _setup.sh)"
+      if [ ! -L "$DEV/$code/project_files/brain/_AgentTasks" ]; then
+        warn "$slug: _AgentTasks symlink missing in project_files/brain/ (run _setup.sh)"
       else
-        fail "$slug: _Docs symlink broken in project_files/brain/"
+        fail "$slug: _AgentTasks symlink broken in project_files/brain/"
       fi
     else
       fail "$slug: project_files/brain/ missing entirely"
@@ -346,6 +346,58 @@ for pair in "${EXPECTED_LINKS[@]}"; do
     warn "~/.claude/$name exists but is not a symlink"
   else
     fail "~/.claude/$name missing (run _setup.sh)"
+  fi
+done
+
+# --- 6b. Per-project .claude/settings.json symlinks ---
+
+echo ""
+echo "-- Per-project .claude/settings.json symlinks --"
+for i in "${!SLUGS[@]}"; do
+  slug="${SLUGS[$i]}"
+  code="${CODE_PATHS[$i]}"
+  expected="$BRAIN/_ClaudeSettings/$slug/settings.json"
+
+  if [ "$slug" = "brain" ]; then
+    # Brain repos handled in the next loop
+    continue
+  fi
+  if [ ! -d "$DEV/$code" ]; then
+    continue  # repo-not-cloned already warned in earlier sections
+  fi
+
+  link="$DEV/$code/.claude/settings.json"
+  if [ -L "$link" ]; then
+    actual=$(readlink "$link")
+    if [ "$actual" = "$expected" ]; then
+      pass "$slug: .claude/settings.json → Brain"
+    else
+      fail "$slug: .claude/settings.json wrong target (→ $actual, expected → $expected)"
+    fi
+  elif [ -e "$link" ]; then
+    fail "$slug: .claude/settings.json is a real file (should be symlink)"
+  else
+    fail "$slug: .claude/settings.json missing (run _setup.sh)"
+  fi
+done
+
+# Brain* repos: <repo>/.claude/settings.json → ../_ClaudeSettings/brain/settings.json
+for brain_repo in "$DEV"/Brain*; do
+  [ -d "$brain_repo/.git" ] || continue
+  link="$brain_repo/.claude/settings.json"
+  expected="../_ClaudeSettings/brain/settings.json"
+  name=$(basename "$brain_repo")
+  if [ -L "$link" ]; then
+    actual=$(readlink "$link")
+    if [ "$actual" = "$expected" ]; then
+      pass "$name: .claude/settings.json → _ClaudeSettings/brain/"
+    else
+      fail "$name: .claude/settings.json wrong target (→ $actual, expected → $expected)"
+    fi
+  elif [ -e "$link" ]; then
+    fail "$name: .claude/settings.json is a real file (should be symlink)"
+  else
+    fail "$name: .claude/settings.json missing (run _setup.sh)"
   fi
 done
 

@@ -74,7 +74,7 @@ done < "$CONF"
 
 echo "-- Vault directories --"
 mkdir -p "$BRAIN/_ActiveSessions/_Parked"
-mkdir -p "$BRAIN/_Docs"
+mkdir -p "$BRAIN/_AgentTasks"
 mkdir -p "$BRAIN/_Profile"
 mkdir -p "$BRAIN/_Workbench"
 mkdir -p "$BRAIN/_Agents"
@@ -85,8 +85,11 @@ for i in "${!SLUGS[@]}"; do
     mkdir -p "$BRAIN/_ActiveSessions/$slug"
   fi
   mkdir -p "$BRAIN/_ClaudeSettings/$slug"
+  if [ ! -f "$BRAIN/_ClaudeSettings/$slug/settings.json" ]; then
+    echo "{}" > "$BRAIN/_ClaudeSettings/$slug/settings.json"
+  fi
   mkdir -p "$BRAIN/_DevLog/$slug"
-  mkdir -p "$BRAIN/_Docs/$slug/Plans" "$BRAIN/_Docs/$slug/Reports"
+  mkdir -p "$BRAIN/_AgentTasks/$slug/Plans" "$BRAIN/_AgentTasks/$slug/Reports"
   mkdir -p "$BRAIN/_Memory/$slug"
   if [ ! -f "$BRAIN/_Memory/$slug/MEMORY.md" ]; then
     echo "# Memory Index" > "$BRAIN/_Memory/$slug/MEMORY.md"
@@ -209,12 +212,15 @@ setup_claude
 # --- Code repo symlinks (project_files/brain/) ---
 
 echo ""
-echo "-- Brain repo CLAUDE.md --"
+echo "-- Brain repo CLAUDE.md + settings.json --"
 # Brain* repos point to their own project CLAUDE.md (global loads separately via ~/.claude/)
 for brain_repo in "$DEV"/Brain*; do
   [ -d "$brain_repo/.git" ] || continue
   ln -sfn "_ClaudeSettings/brain/CLAUDE.md" "$brain_repo/CLAUDE.md"
+  mkdir -p "$brain_repo/.claude"
+  ln -sfn "../_ClaudeSettings/brain/settings.json" "$brain_repo/.claude/settings.json"
   echo "  ✓ $(basename "$brain_repo")/CLAUDE.md → _ClaudeSettings/brain/CLAUDE.md"
+  echo "  ✓ $(basename "$brain_repo")/.claude/settings.json → _ClaudeSettings/brain/settings.json"
 done
 
 echo ""
@@ -249,12 +255,16 @@ for i in "${!SLUGS[@]}"; do
   safe_dir_symlink "$BRAIN/_Memory/$slug" "$brain_dir/memory"
   safe_dir_symlink "$BRAIN/_DevLog/$slug" "$brain_dir/DevLog"
   safe_dir_symlink "$BRAIN/_Workbench/$slug" "$brain_dir/Workbench"
-  safe_dir_symlink "$BRAIN/_Docs/$slug" "$brain_dir/_Docs"
+  safe_dir_symlink "$BRAIN/_AgentTasks/$slug" "$brain_dir/_AgentTasks"
 
   # Root CLAUDE.md → project_files/brain/CLAUDE.md
   ln -sfn "project_files/brain/CLAUDE.md" "$project/CLAUDE.md"
 
-  echo "  ✓ $slug: project_files/brain/ (7 symlinks) + root CLAUDE.md"
+  # .claude/settings.json → _ClaudeSettings/<slug>/settings.json (.claude/ is gitignored)
+  mkdir -p "$project/.claude"
+  ln -sfn "$BRAIN/_ClaudeSettings/$slug/settings.json" "$project/.claude/settings.json"
+
+  echo "  ✓ $slug: project_files/brain/ (7 symlinks) + root CLAUDE.md + .claude/settings.json"
 done
 
 # --- Collab repo git hooks (pre-push + post-merge) ---
@@ -300,7 +310,7 @@ HOOK
 BRAIN_DIR="project_files/brain"
 [ -d "$BRAIN_DIR" ] || exit 0
 BROKEN=""
-for item in CLAUDE.md session.md _Status.md memory DevLog Workbench _Docs; do
+for item in CLAUDE.md session.md _Status.md memory DevLog Workbench _AgentTasks; do
   target="$BRAIN_DIR/$item"
   if [ -e "$target" ] && [ ! -L "$target" ]; then
     BROKEN="$BROKEN $item"

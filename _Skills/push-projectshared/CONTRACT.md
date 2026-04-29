@@ -4,7 +4,7 @@ Behavioral invariants for this skill. Violations are errors — the skill or the
 
 | ID | Invariant |
 |----|-----------|
-| BHV-001 | MUST only stage and commit files under `project_files/brain/` (excluding `_Docs`). Never stage code changes through this skill. |
+| BHV-001 | MUST only stage and commit files under `project_files/brain/` (excluding `_AgentTasks`). Never stage code changes through this skill. |
 | BHV-002 | MUST dereference symlinks before commit and restore them after — even if push fails or is cancelled. |
 | BHV-003 | Every changed brain file from partner MUST be presented for review. Never silently overwrite partner changes. |
 | BHV-004 | MUST fetch remote and check for partner changes before pushing. If partner changed brain files, interactive merge is required. |

@@ -5,7 +5,7 @@ Violations are errors — the skill or the contract must be updated to resolve t
 
 | ID | Invariant |
 |----|-----------|
-| 1  | The skill must never modify vault files directly. Its only write output is the migration plan file saved to `_Docs/brain/Plans/`. All structural changes happen during plan execution via superpowers. |
+| 1  | The skill must never modify vault files directly. Its only write output is the migration plan file saved to `_AgentTasks/brain/Plans/`. All structural changes happen during plan execution via superpowers. |
 | 2  | Phase 1 (Deep Diff) must compare against both `_HowThisWorks.md` (expected structure) and BrainShared remote content (cloned to temp dir, partner state) when in post-pull or pre-push mode. Comparing against only one source is a violation. |
 | 3  | Phase 3 (Interactive Q&A) must ask at least one clarifying question via AskUserQuestion when ambiguous changes are detected (e.g., directory disappeared — moved or deleted?). Generating a plan without resolving ambiguities is a violation. |
 | 4  | Generated plans must enumerate every affected project by slug with specific file paths. Plans that use "repeat for all projects" or similar shorthand instead of explicit per-project steps are a violation. |

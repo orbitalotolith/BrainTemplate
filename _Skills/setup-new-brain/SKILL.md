@@ -25,6 +25,54 @@ Read `gotchas.md` in this skill's directory (if it exists) before proceeding. Kn
 
 ---
 
+### 0.5. Bootstrap (if empty directory)
+
+If the current working directory is **not** yet a Brain (no `_HowThisWorks.md`, no `.git/`), enter bootstrap mode. Otherwise skip to Step 1.
+
+Use the **Bash** tool to detect bootstrap state:
+
+```bash
+if [ ! -f "_HowThisWorks.md" ] && [ ! -d ".git" ]; then
+  BOOTSTRAP=1
+  echo "[bootstrap] Empty directory detected — will clone BrainTemplate."
+else
+  BOOTSTRAP=0
+fi
+```
+
+If `BOOTSTRAP=1`, proceed through 0.5a–0.5c. Otherwise jump to Step 1.
+
+#### 0.5a — Resolve the BrainTemplate URL
+
+If the user's invocation already supplied a URL (e.g. "Set up this new Brain from the BrainTemplate repo: `git@github.com:foo/BrainTemplate.git`"), use that URL directly.
+
+Otherwise ask the user in plain conversation: "What's the BrainTemplate repo URL?" Expected format is `git@github.com:<org>/BrainTemplate.git` (SSH) or `https://github.com/<org>/BrainTemplate.git` (HTTPS). Store their answer as `BRAIN_TEMPLATE_URL`.
+
+#### 0.5b — Clone into current directory
+
+Use the **Bash** tool. `git clone <url> .` requires an empty directory — including no hidden files. Pre-clean the macOS `.DS_Store` (universally safe in an empty Brain dir), then abort if anything else remains:
+
+```bash
+rm -f .DS_Store
+remaining="$(ls -A)"
+if [ -n "$remaining" ]; then
+  echo "ERROR: Directory not empty (contains: $(echo "$remaining" | tr '\n' ' '))."
+  echo "       Bootstrap requires an empty directory. Remove these files and re-run the skill."
+  exit 1
+fi
+git clone "$BRAIN_TEMPLATE_URL" . || { echo "ERROR: git clone failed."; exit 1; }
+```
+
+#### 0.5c — Run `_setup.sh`
+
+```bash
+bash _setup.sh || { echo "ERROR: _setup.sh failed — fix output above before re-running the skill."; exit 1; }
+```
+
+After 0.5c, fall through to Step 1. Pre-flight will now succeed because `_HowThisWorks.md` and `_projects.conf` exist.
+
+---
+
 ### 1. Pre-flight
 
 Use the **Bash** tool to verify the environment:
@@ -112,7 +160,7 @@ Use the **Bash** tool:
 bash _setup.sh
 ```
 
-This creates `_Workbench/`, `_Profile/`, `_Agents/`, `_ActiveSessions/_Parked/`, `_Docs/`, the `~/.claude/` symlinks, and regenerates `.claude/commands/`. Already idempotent — safe if it ran before.
+This creates `_Workbench/`, `_Profile/`, `_Agents/`, `_ActiveSessions/_Parked/`, `_AgentTasks/`, the `~/.claude/` symlinks, and regenerates `.claude/commands/`. Already idempotent — safe if it ran before.
 
 ---
 

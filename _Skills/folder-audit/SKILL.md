@@ -171,7 +171,7 @@ For each project in the registry:
 | STR-005 | warn | `has_code_repo` but missing `project_files/brain/DevLog/` or `project_files/brain/Workbench/` | Project missing recommended shared subdirs |
 | STR-006 | error | Project path hierarchy doesn't match expected pattern | Code repo subcategory and registry category disagree |
 | STR-007 | warn | Directory or file name violates naming conventions from `_HowThisWorks.md` (read in step 0b) | Naming violation per vault naming rules |
-| STR-008 | error | `_Docs/<slug>/Plans/` directory missing for registered project | Plan directory missing in Brain vault — create it |
+| STR-008 | error | `_AgentTasks/<slug>/Plans/` directory missing for registered project | Plan directory missing in Brain vault — create it |
 | STR-009 | warn | `has_code_repo` but no `project_files/data/` directory | Code repo missing `project_files/data/` directory for runtime data |
 
 **STR-002 nuance:** A workbench symlink without a code repo is only an error if the project is expected to have one. Some projects may be planning-phase only (workbench exists before code). If `_Status.md` exists and has `status: planning` or `status: archived` in frontmatter, downgrade to `info`.
@@ -192,7 +192,7 @@ For each project with `has_code_repo`:
 |----|----------|-----------|-------------|
 | SYM-001 | error | `project_files/brain/` doesn't exist at all (not a dir, not a symlink) | Shared project directory missing — code repo has no `project_files/brain/` |
 | SYM-002 | -- | REMOVED — replaced by SHR-001 | (Old format detection moved to SHR checks) |
-| SYM-003 | error | Dangling symlink inside `project_files/brain/` — target does not exist | Brain component symlink broken (session.md, _Status.md, DevLog, Workbench, _Docs, memory, or CLAUDE.md) |
+| SYM-003 | error | Dangling symlink inside `project_files/brain/` — target does not exist | Brain component symlink broken (session.md, _Status.md, DevLog, Workbench, _AgentTasks, memory, or CLAUDE.md) |
 | SYM-004 | error | Root `CLAUDE.md` symlink chain does not resolve — Claude Code cannot find project instructions | Broken CLAUDE.md chain: `<repo>/CLAUDE.md` → `project_files/brain/CLAUDE.md` → Brain. Downgrade to `info` if `has_code_repo` is false (repo not cloned on this machine). |
 | SYM-005 | warn | `project_files/` directory doesn't exist at all | `project_files/` directory missing entirely |
 
@@ -211,7 +211,7 @@ fi
 
 **SYM-003 check:** For each code repo where `project_files/brain/` is a real directory, check each expected symlink resolves:
 ```bash
-for link in session.md _Status.md DevLog Workbench _Docs memory CLAUDE.md; do
+for link in session.md _Status.md DevLog Workbench _AgentTasks memory CLAUDE.md; do
   target="<repo_path>/project_files/brain/$link"
   if [ -L "$target" ] && [ ! -e "$target" ]; then
     # Dangling symlink — SYM-003 error. Report which component and where it pointed.
@@ -234,7 +234,7 @@ else
 fi
 ```
 
-**STR-008 repair:** `mkdir -p "$BRAIN/_Docs/<slug>/Plans"`
+**STR-008 repair:** `mkdir -p "$BRAIN/_AgentTasks/<slug>/Plans"`
 
 **STR-009 repair:** `mkdir -p "<repo_path>/project_files/data"`
 
@@ -330,7 +330,7 @@ Brain holds all real files. Code repos contain symlinks pointing into Brain. For
 | SHR-007 | error | Brain `_ActiveSessions/<slug>/session.md` missing or is a symlink | session.md should be a real file in Brain |
 | SHR-008 | error | Code repo `project_files/brain/` items are real files (not symlinks to Brain) | Code repo should contain symlinks, not real files — run _setup.sh to migrate |
 | SHR-009 | warn | Solo repo `.gitignore` doesn't ignore `project_files/brain/` | Solo repo .gitignore needs `project_files/brain/` rule |
-| SHR-010 | warn | `project_files/brain/_Docs` symlink missing | _Docs symlink not created (run _setup.sh) |
+| SHR-010 | warn | `project_files/brain/_AgentTasks` symlink missing | _AgentTasks symlink not created (run _setup.sh) |
 | SHR-011 | warn | Code repo has `project_files/brain/` directory but `.gitignore` has no `project_files/brain/` rule | `.gitignore` should exclude `project_files/brain/` to prevent committing symlinks |
 
 **SHR-008 check:** For each item in `project_files/brain/` (CLAUDE.md, memory, session.md, _Status.md, DevLog, Workbench), verify it's a symlink pointing to the correct Brain path. If it's a real file/dir, flag as SHR-008.
@@ -575,7 +575,7 @@ safe_symlink "$BRAIN/_ActiveSessions/$slug/session.md" "$repo/project_files/brai
 safe_symlink "$BRAIN/_ActiveSessions/$slug/_Status.md" "$repo/project_files/brain/_Status.md"
 safe_symlink "$BRAIN/_DevLog/$slug"                   "$repo/project_files/brain/DevLog"
 safe_symlink "$BRAIN/_Workbench/$slug"                "$repo/project_files/brain/Workbench"
-safe_symlink "$BRAIN/_Docs/$slug"                     "$repo/project_files/brain/_Docs"
+safe_symlink "$BRAIN/_AgentTasks/$slug"                     "$repo/project_files/brain/_AgentTasks"
 ```
 
 For any symlink that returns 1 (already resolves), use AskUserQuestion to confirm per-item before calling `ln -sfn` directly to replace it.
@@ -602,7 +602,7 @@ project_files/*
 !project_files/brain/
 project_files/brain/DevLog
 project_files/brain/Workbench
-project_files/brain/_Docs
+project_files/brain/_AgentTasks
 project_files/brain/.DS_Store
 ```
 
@@ -626,7 +626,7 @@ Do NOT auto-commit or auto-push. The user handles git (or Obsidian auto-syncs).
 After Phase 3 (or Phase 4 if repairs were applied), save the full report to:
 
 ```
-$BRAIN_ROOT/_Docs/brain/Reports/folder-audit-YYYY-MM-DD.md
+$BRAIN_ROOT/_AgentTasks/brain/Reports/folder-audit-YYYY-MM-DD.md
 ```
 
 Use today's date. The report file should include:

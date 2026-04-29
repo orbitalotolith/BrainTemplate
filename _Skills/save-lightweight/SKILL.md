@@ -30,7 +30,7 @@ grep -v '^#' "$BRAIN/_projects.conf" | grep -v '^$'
 Resolution rules **in order** — first match wins:
 
 - **a. Brain root itself** — CWD == `$BRAIN` → slug = `brain`. No prompt.
-- **b. Brain subdirs with slug in path (unambiguous)** — extract `<slug>` from: `_ActiveSessions/<slug>/*` (or `_Parked/<slug>/*`), `_Docs/<slug>/*`, `_Memory/<slug>/*`, `_DevLog/<slug>/*`, `_Workbench/<slug>/*`, `_ClaudeSettings/<slug>/*`.
+- **b. Brain subdirs with slug in path (unambiguous)** — extract `<slug>` from: `_ActiveSessions/<slug>/*` (or `_Parked/<slug>/*`), `_AgentTasks/<slug>/*`, `_Memory/<slug>/*`, `_DevLog/<slug>/*`, `_Workbench/<slug>/*`, `_ClaudeSettings/<slug>/*`.
 - **c. Code repo** — CWD under `~/Development/` but not `$BRAIN` → match CODE_PATH (longest prefix wins).
 - **d. Cross-cutting Brain subdirs (ambiguous — prompt)** — for `_Skills/*`, `_KnowledgeBase/*`, `_Profile/*`, `_Agents/*`, or any other Brain path not matching a-c, use **AskUserQuestion** to ask which project. Options: all slugs from `_projects.conf` (default: `brain`) + "none — cancel".
 - **e. No match** — stop with error.
@@ -47,7 +47,7 @@ if [ "$COLLAB" = "collab" ]; then
   code=$(grep "^${slug}|" "$BRAIN/_projects.conf" | cut -d'|' -f3)
   repo_brain="$HOME/Development/$code/project_files/brain"
   broken=""
-  for item in CLAUDE.md session.md _Status.md memory DevLog Workbench _Docs; do
+  for item in CLAUDE.md session.md _Status.md memory DevLog Workbench _AgentTasks; do
     t="$repo_brain/$item"
     [ -e "$t" ] && [ ! -L "$t" ] && broken="$broken $item"
   done

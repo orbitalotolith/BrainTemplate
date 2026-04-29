@@ -1,6 +1,6 @@
 # Code Audit — Report Template
 
-Report file location: `$BRAIN_ROOT/_Docs/<slug>/Reports/audit-YYYY-MM-DD.md`
+Report file location: `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/audit-YYYY-MM-DD.md`
 
 ---
 

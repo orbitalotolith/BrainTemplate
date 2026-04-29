@@ -10,5 +10,5 @@ Violations are errors — the skill or the contract must be updated to resolve t
 | 3  | MUST run _setup.sh to create symlinks. Never manually create project_files/brain symlinks. |
 | 4  | MUST run _health-check.sh after setup to verify the project was wired correctly. |
 | 5  | MUST create _Memory/<slug>/MEMORY.md, _ActiveSessions/<slug>/ directory (with session.md and _Status.md symlinks), and _Workbench/<slug> symlink for every new project. No project without a memory seed, session directory, and workbench link. |
-| 6  | MUST create _Docs/<slug>/Plans/ directory. No project without a plans directory. |
+| 6  | MUST create _AgentTasks/<slug>/Plans/ directory. No project without a plans directory. |
 | 7  | MUST create project_files/data/ directory in code repo. Runtime data goes here, never at project root. |

@@ -1,68 +1,102 @@
 # Key to ~/Development/
 
-Quick reference for workflows and skills. For vault structure and architecture, see `_HowThisWorks.md`.
+Quick reference for daily workflows and skills. For vault structure and architecture, see `_HowThisWorks.md`.
 
 ---
 
-## Workflows
+## 1. Daily Workflows
 
 ### Development
 
-**Coding session:** `/start-session` → work → `/simplify` → `/save-session` → `/commit`
+Every session: `/start-session` → work → `/save-session` → `/commit`. The middle varies:
 
-**Planned feature:** `/start-session` → brainstorm → write plan → execute plan → `/simplify` → `/save-session` → `/commit`
-
-**Bug fix:** `/start-session` → debug → fix → `/simplify` → `/save-session` → `/commit`
-
-**Refactor:** `/start-session` → `/refactor` → implement recommendations → `/simplify` → `/save-session` → `/commit`
-
-**Code review:** `/start-session` → review → address feedback → `/simplify` → `/save-session` → `/commit`
-
-**TDD feature:** `/start-session` → brainstorm → write plan → TDD (write tests → implement → green) → `/save-session` → `/commit`
+| Task            | Middle                                                  |
+|-----------------|---------------------------------------------------------|
+| Coding          | work → `/simplify`                                      |
+| Planned feature | brainstorm → write plan → execute plan → `/simplify`    |
+| Bug fix         | debug → fix → `/simplify`                               |
+| Refactor        | `/refactor` → implement → `/simplify`                   |
+| Code review     | review → address feedback → `/simplify`                 |
+| TDD feature     | brainstorm → write plan → TDD (red → green)             |
 
 ### Shipping
 
-**Pre-release:** `/structure-audit` → `/code-audit` → `/security-audit` → `/test-create` → `/changelog` → `/ship-check` → `/commit push`
-
-**TestFlight submission:** `/testflight-check` → fix issues → `/commit push`
-
-**Client delivery:** `/brand-identity-extractor` → `/code-audit` → `/security-audit` → `/ship-check`
+| Type            | Workflow |
+|-----------------|----------|
+| Pre-release     | `/structure-audit` → `/code-audit` → `/security-audit` → `/test-create` → `/changelog` → `/ship-check` → `/commit push` |
+| TestFlight      | `/testflight-check` → fix → `/commit push` |
+| Client delivery | `/brand-identity-extractor` → `/code-audit` → `/security-audit` → `/ship-check` |
 
 ### Vault Maintenance
 
-**New project:** `/create-project` → `/brain-check` → work → `/save-session`
+| Action              | Workflow |
+|---------------------|----------|
+| New project         | `/create-project` → `/brain-check` → work → `/save-session` |
+| Structural audit    | `/brain-check` → `/folder-audit` → `/structure-audit` |
+| Content audit       | `/profile-audit` → `/memory-audit` → `/kb-audit` → `/devlog-audit` → `/status-audit` → `/vault-consistency-audit` |
+| Mid-session capture | `/capture` |
+| Skill development   | brainstorm → write plan → `/writing-skills` → `/skill-audit` → `/save-session` → `/commit` |
 
-**Structural audit:** `/brain-check` → `/folder-audit` → `/structure-audit`
-
-**Content audit:** `/profile-audit` → `/memory-audit` → `/kb-audit` → `/devlog-audit` → `/status-audit` → `/vault-consistency-audit`
-
-**Mid-session capture:** `/capture` — write a surfaced gotcha, decision, KB entry, memory, profile update, or agent persona update to its canonical destination. Also runs silently from `/save-session` and `/save-lightweight`.
-
-**Apply an audit's findings:** After any `*-audit` skill produces findings, say `apply the <name>-audit findings` — Claude walks through each interactively with preview-then-confirm. For `/status-audit` specifically, cleanup routes entries across the project knowledge hierarchy: short conventions to `_ClaudeSettings/<slug>/CLAUDE.md`, architectural rationale to `_DevLog/<slug>/architecture.md` (not auto-loaded), resolved Gotchas to `_DevLog/<slug>/archive.md`, cross-project quirks to `_KnowledgeBase/`. See `_HowThisWorks.md` → "Project Knowledge Hierarchy" for the full picture.
-
-**Skill development:** brainstorm → write plan → `/writing-skills` workflow → `/skill-audit` → `/save-session` → `/commit`
-
-### Sync
-
-**Push to BrainShared:** `/brain-check` → `/folder-audit` → `/save-session` → `/commit push` → `/push-brainshared`
-
-**Pull from BrainShared:** `/push-brainshared` → `/pull-brainshared` → `/brain-check` → `/vault-migrate` → review plan → execute plan
-
-**Push after local structural changes:** `/vault-migrate --local` → review plan → execute plan → `/brain-check` → `/save-session` → `/commit push` → `/push-brainshared`
-
-**Partner catching up after structural changes:** `/pull-skills` → `/push-brainshared` → `/pull-brainshared` → `/vault-migrate` → `/brain-check`
-
-**Collab project push:** `/save-session` → `/push-projectshared` → `/commit push`
-
-**Collab project pull:** `/pull-projectshared` → `/brain-check` → `/start-session`
-
-### Setup
-
-**New Brain (machine or partner):** clone BrainTemplate → `_setup.sh` → `/setup-new-brain`
+**Apply audit findings:** after any `*-audit`, say "apply the `<name>-audit` findings" — Claude walks each one preview-then-confirm.
 
 ---
 
-## Skills
+## 2. The Sync Cycle
+
+The end-to-end loop for keeping all Brains coherent.
+
+### Step 1 — Maintenance
+
+Audit the vault before pushing.
+
+| Tier | When                          | Skills |
+|------|-------------------------------|--------|
+| Lean | Daily / before most pushes    | `/brain-check` → `/folder-audit` |
+| Deep | Before bigger pushes / monthly | `/profile-audit` → `/memory-audit` → `/kb-audit` → `/devlog-audit` → `/status-audit` → `/vault-consistency-audit` |
+
+End with `/save-session` → `/commit`.
+
+### Step 2 — `/push-brainshared`
+
+AI-merge push of skills, KnowledgeBase, templates, and global memories to BrainShared.
+
+### Step 3 — `/pull-brainshared` (other machines / partner)
+
+Pull latest from BrainShared. Run on every other Brain you maintain.
+
+### Step 4 — `/vault-migrate` + `/brain-check`
+
+Settle any structural changes that arrived in the pull. `/vault-migrate` analyzes diffs and generates a migration plan; `/brain-check` fixes symlinks and validates integrity.
+
+### Order tip — pushing structural changes
+
+If your push includes structural moves (renames, new tier folders), run `/vault-migrate --local` before Step 2. That way the migration plan ships with the push, and other Brains apply a deterministic plan in Step 4 instead of reverse-engineering the move.
+
+---
+
+## 3. Per-Project Collab Sync
+
+For collab repos — projects shared with a partner. Parallel mini-cycle, distinct from BrainShared.
+
+### Push
+
+`/save-session` → `/commit` (only if you have uncommitted code to include) → `/push-projectshared`
+
+`/push-projectshared` owns its own commit + push: it commits the brain context files separately and runs the actual git push with `ALLOW_COLLAB_PUSH=1`. It will warn but not auto-commit any uncommitted code changes — run `/commit` (no push) first if you want them included.
+
+### Pull
+
+`/pull-projectshared` → `/brain-check` → `/start-session`
+
+### Why these skills exist
+
+Collab repos use `project_files/brain/` symlinks pointing into your private Brain. Bare `git push` would dereference and leak private content; bare `git pull` would overwrite the symlinks with real files. The skills handle the dereference/restore dance.
+
+A pre-push hook blocks bare push unless `ALLOW_COLLAB_PUSH=1` (set by `/push-projectshared`); a post-merge hook warns when a pull has overwritten symlinks.
+
+---
+
+## 4. Skills Reference
 
 ### Daily
 
@@ -103,63 +137,39 @@ Quick reference for workflows and skills. For vault structure and architecture, 
 |---------|-------------|
 | `/create-project` | Onboard a project into the Brain vault |
 | `/brain-check` | Fix symlinks + validate vault integrity |
-| `/profile-audit` | Audit _Profile/ subfiles against user-type memories |
+| `/profile-audit` | Audit `_Profile/` subfiles against user-type memories |
 | `/memory-audit` | Audit memory scope, dedup, quality, and absorption |
 | `/kb-audit` | Audit KnowledgeBase entries for freshness and format |
 | `/devlog-audit` | Audit DevLog entries for quality and unpromoted knowledge |
-| `/status-audit` | Audit _Status.md and session files for freshness |
+| `/status-audit` | Audit `_Status.md` and session files for freshness |
 | `/vault-consistency-audit` | Audit cross-project consistency, symlinks, doc drift |
-| `/folder-audit` | Structural audit of ~/Development/ (Brain integration, symlinks, registry) |
+| `/folder-audit` | Structural audit of `~/Development/` (Brain integration, symlinks, registry) |
 | `/structure-audit` | Audit code repo internal layout against Universal Project Structure |
 | `/vault-migrate` | Analyze structural differences and generate migration plan (post-pull, pre-push, or local) |
 | `/skill-audit` | Audit skills for conformance, health, and fitness |
 | `/pull-skills` | Pull latest skills from BrainShared |
 
-### Planning (Superpowers plugin)
-
-| Need | What to Ask |
-|------|-------------|
-| Explore options before building | "Let's brainstorm" |
-| Detailed implementation plan | "Write a plan" |
-| Execute a written plan | "Execute the plan" |
-| Test-driven development | "Use TDD" |
-| Debug a problem | "Debug this" |
-| Code review | "Review this" |
-
 ---
 
-## Partner Sync
+## 5. Identity & Architecture
 
-BrainShared distributes skills, KnowledgeBase, templates, and global memories between partners. Each partner has their own private Brain. For collab repos, `/push-projectshared` and `/pull-projectshared` handle project-specific context sync.
+### Brain architecture
 
-**To sync:** `/push-brainshared` before `/pull-brainshared`. Push saves your work; pull overwrites shared content with latest. For collab repos, use `/push-projectshared` and `/pull-projectshared`.
+- Vault structure, sync model, knowledge hierarchy → `_HowThisWorks.md`
+- User profile (identity, business, skills, preferences) → `_Profile/`
+- Project registry → `_projects.conf`
 
-**New partner setup:** Tell Claude to "set up Brain from BrainShared" — it will clone the repo, run setup, create personal directories, configure sync, and verify.
+### New Machine Setup
 
----
+1. Create the folder: `mkdir -p ~/Development/Brain<Name>`
+2. Open Claude Code in that folder
+3. Run `/setup-new-brain` — when prompted, paste the BrainTemplate URL: `git@github.com:<org>/BrainTemplate.git`
 
-## New Machine Setup
+The skill clones BrainTemplate, runs `_setup.sh`, and walks identity, persona, git remotes, and optional BrainShared collab.
 
-Clone BrainTemplate (`<org>/BrainTemplate`), run `_setup.sh`, open Claude Code, run `/setup-new-brain`. The skill walks identity, persona, git remotes, and optional BrainShared collab. Works on macOS, Linux, and Windows.
+#### Windows prerequisites
 
-```bash
-git clone git@github.com:<org>/BrainTemplate.git ~/Development/Brain<Name>
-cd ~/Development/Brain<Name>
-bash _setup.sh
-# then in Claude Code: /setup-new-brain
-```
-
-Then open Obsidian, point it at the Brain directory, and enable plugins: Dataview, Templater, Obsidian Git.
-
-### Windows prerequisites
-
-`_setup.sh` and `_health-check.sh` are bash — on Windows, run them from **Git Bash** (ships with Git for Windows), not PowerShell or CMD.
-
-1. Git for Windows installed (provides Git Bash).
-2. **Developer Mode ON** (Settings → Privacy & security → For developers). Without this, symlinks silently fall back to copies and the vault breaks.
-3. `git config --global core.symlinks true` — so git respects symlinks in pulls/clones.
-4. SSH key registered with GitHub (for cloning the private Brain repo).
-
-Verify: open Claude Code, start a session in Brain, confirm skills load. If symlinks appear as copies in `~/.claude/`, Developer Mode isn't on.
-
-Known gotcha: `_health-check.sh` uses `date -j -f` (macOS-only) in one spot — non-blocking, but expect one warning on Windows/Linux until fixed.
+- Run shell scripts from **Git Bash** (not PowerShell or CMD).
+- **Developer Mode ON** (Settings → Privacy & security → For developers) — symlinks fall back to copies otherwise.
+- `git config --global core.symlinks true`
+- SSH key registered with GitHub.

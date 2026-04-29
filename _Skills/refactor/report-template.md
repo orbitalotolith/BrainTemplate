@@ -1,6 +1,6 @@
 # Refactor — Report Template
 
-Report file location: `$BRAIN_ROOT/_Docs/<slug>/Reports/refactor-YYYY-MM-DD.md`
+Report file location: `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/refactor-YYYY-MM-DD.md`
 
 ---
 

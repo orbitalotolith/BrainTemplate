@@ -90,8 +90,8 @@ Three documents guide this system. Each has a distinct audience:
 │   │   └── <slug>/                   <- per-project CLAUDE.md (real files, canonical)
 │   │
 │   ├── _DevLog/                       <- per-project session history (real directories, canonical)
-│   └── _Docs/                         <- implementation specs, plans, audit reports, workflow logs
-│       ├── <slug>/                    <- per-project docs (accessed via <Project>/_Docs symlink)
+│   └── _AgentTasks/                         <- implementation specs, plans, audit reports, workflow logs
+│       ├── <slug>/                    <- per-project docs (accessed via <Project>/_AgentTasks symlink)
 │       │   ├── Plans/                 <- implementation plans
 │       │   └── Reports/               <- audit reports (code-audit, security-audit, skill-audit)
 │
@@ -117,7 +117,7 @@ Three documents guide this system. Each has a distinct audience:
 │               │   ├── memory          <- SYMLINK -> <Brain>/_Memory/<slug>/
 │               │   ├── DevLog          <- SYMLINK -> <Brain>/_DevLog/<slug>/
 │               │   ├── Workbench       <- SYMLINK -> <Brain>/_Workbench/<slug>/
-│               │   └── _Docs           <- SYMLINK -> <Brain>/_Docs/<slug>/ (gitignored)
+│               │   └── _AgentTasks           <- SYMLINK -> <Brain>/_AgentTasks/<slug>/ (gitignored)
 │               ├── data/               <- runtime data, databases, generated files (gitignored)
 │               ├── assets/             <- design files, source images (gitignored)
 │               └── tools/              <- dev scripts, utilities (gitignored)
@@ -198,7 +198,7 @@ type: <user|feedback|project|reference>
 For each code project the user wants to integrate:
 
 1. Add one line to `<Brain>/_projects.conf`: `<slug>|<category>|<code-path>|<collab>`
-2. Create Brain directories: `_ActiveSessions/<slug>/`, `_Memory/<slug>/`, `_ClaudeSettings/<slug>/`, `_DevLog/<slug>/`, `_Workbench/<slug>/`, `_Docs/<slug>/` with real files
+2. Create Brain directories: `_ActiveSessions/<slug>/`, `_Memory/<slug>/`, `_ClaudeSettings/<slug>/`, `_DevLog/<slug>/`, `_Workbench/<slug>/`, `_AgentTasks/<slug>/` with real files
 3. Run `_setup.sh` to create symlinks from code repo `project_files/brain/` into Brain
 
 ---
@@ -237,7 +237,7 @@ Brain is the single source of truth for all project context. Every project's ses
 ├── _Memory/<slug>/                                <- real directory
 ├── _DevLog/<slug>/                                <- real directory
 ├── _Workbench/<slug>/                             <- real directory
-├── _Docs/<slug>/                                  <- real directory
+├── _AgentTasks/<slug>/                                  <- real directory
 ```
 
 ```
@@ -251,7 +251,7 @@ Brain is the single source of truth for all project context. Every project's ses
 │       ├── memory       -> <Brain>/_Memory/<slug>/
 │       ├── DevLog       -> <Brain>/_DevLog/<slug>/
 │       ├── Workbench    -> <Brain>/_Workbench/<slug>/
-│       └── _Docs        -> <Brain>/_Docs/<slug>/
+│       └── _AgentTasks        -> <Brain>/_AgentTasks/<slug>/
 ```
 
 ```
@@ -287,13 +287,13 @@ Code repo symlinks are the only things that break when a repo isn't cloned — a
 
 If Brain is not cloned on a machine, no project context is available. Clone Brain first, then code repos, then run `_setup.sh`.
 
-### _Docs Symlink
+### _AgentTasks Symlink
 
-`_Docs/` lives in Brain (`<Brain>/_Docs/<slug>/`) as a real directory. A symlink provides access from the code repo:
+`_AgentTasks/` lives in Brain (`<Brain>/_AgentTasks/<slug>/`) as a real directory. A symlink provides access from the code repo:
 
-- **In code repo** (local-only, gitignored): `<repo>/project_files/brain/_Docs` -> `<Brain>/_Docs/<slug>/`
+- **In code repo** (local-only, gitignored): `<repo>/project_files/brain/_AgentTasks` -> `<Brain>/_AgentTasks/<slug>/`
 
-The code repo symlink is created by `_setup.sh` and gitignored. Each machine creates its own. Plans and docs are accessed via `project_files/brain/_Docs/Plans/`.
+The code repo symlink is created by `_setup.sh` and gitignored. Each machine creates its own. Plans and docs are accessed via `project_files/brain/_AgentTasks/Plans/`.
 
 ### Collab Repos — Dereference on Push
 
@@ -396,7 +396,7 @@ Each partner's private Brain contains everything — shared and personal. BrainS
 | `_Memory/brain/` (global memories) | `_Memory/<project-slug>/` (per-project memories, canonical in Brain) |
 | `WordOfWisdom.md` | `_projects.conf` |
 | `_HowThisWorks.md` | `_DevLog/` |
-| `key-to-dev.md` | `_Docs/` |
+| `key-to-dev.md` | `_AgentTasks/` |
 | `_setup.sh`, `_health-check.sh` | `_sync.conf` |
 | `_ClaudeSettings/global/CLAUDE.md` | |
 | `_ClaudeSettings/global/settings.json` | |
@@ -595,8 +595,8 @@ _Agents/
 
 | Scope | Paths | Who writes |
 |---|---|---|
-| Read | `_Profile/`, `_ActiveSessions/`, `_DevLog/`, `_Memory/`, `_KnowledgeBase/`, `_Docs/`, `_Workbench/`, `_projects.conf`, `_Agents/<self>/` | — |
-| Write | `_Docs/<slug>/`, `_Workbench/<slug>/`, `_Agents/<self>/memory/` | agent |
+| Read | `_Profile/`, `_ActiveSessions/`, `_DevLog/`, `_Memory/`, `_KnowledgeBase/`, `_AgentTasks/`, `_Workbench/`, `_projects.conf`, `_Agents/<self>/` | — |
+| Write | `_AgentTasks/<slug>/`, `_Workbench/<slug>/`, `_Agents/<self>/memory/` | agent |
 | Denied | `.git/`, `_ClaudeSettings/`, `_Skills/`, anything outside `BRAIN_ROOT` | — |
 
 ### Canonical persona via symlink
@@ -676,7 +676,7 @@ Every code project follows the same layout, regardless of language or platform. 
     │   ├── memory               # Symlink -> <Brain>/_Memory/<slug>/
     │   ├── DevLog               # Symlink -> <Brain>/_DevLog/<slug>/
     │   ├── Workbench            # Symlink -> <Brain>/_Workbench/<slug>/
-    │   └── _Docs                # Symlink -> <Brain>/_Docs/<slug>/ (gitignored)
+    │   └── _AgentTasks                # Symlink -> <Brain>/_AgentTasks/<slug>/ (gitignored)
     ├── data/                    # Runtime data, databases, generated files (gitignored)
     ├── assets/                  # Design files, source images (gitignored)
     └── tools/                   # Dev scripts, utilities (gitignored)
@@ -686,7 +686,7 @@ Every code project follows the same layout, regardless of language or platform. 
 - Source code goes in `core/` and/or `clients/` — never loose at root (except manifest files and entrypoints)
 - Solo repos: `.gitignore` includes `project_files/brain/` — all symlinks are gitignored
 - Collab repos: `.gitignore` allows `project_files/brain/` for shared content (committed as real files via `/push-projectshared`)
-- Plans and docs are accessed through `project_files/brain/_Docs/Plans/` — no separate `plans/` symlink at project root
+- Plans and docs are accessed through `project_files/brain/_AgentTasks/Plans/` — no separate `plans/` symlink at project root
 - Single-platform projects may skip `clients/` entirely (e.g., a Python CLI tool uses just `core/`)
 - Backend-only projects use `core/` without `clients/`
 
@@ -708,7 +708,7 @@ Every code project follows the same layout, regardless of language or platform. 
    mkdir -p <Brain>/_Memory/<slug>
    mkdir -p <Brain>/_DevLog/<slug>
    mkdir -p <Brain>/_Workbench/<slug>
-   mkdir -p <Brain>/_Docs/<slug>/{Plans,Reports}
+   mkdir -p <Brain>/_AgentTasks/<slug>/{Plans,Reports}
    ```
 3. Create `<Brain>/_ActiveSessions/<slug>/_Status.md` (include frontmatter: tags, created, category, client, status)
 4. Create `<Brain>/_Memory/<slug>/MEMORY.md` (empty index)

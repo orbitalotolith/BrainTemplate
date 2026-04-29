@@ -190,7 +190,7 @@ If `NEEDS_MERGE=true` (partner changed brain files OR first push/stale baseline)
 ### 8. Safety Check
 
 Before staging, verify:
-- Only `project_files/brain/` files will be staged (excluding `_Docs`)
+- Only `project_files/brain/` files will be staged (excluding `_AgentTasks`)
 - No `.claude/` files
 - No secrets — AI reads the staged diff and flags anything that looks like a credential (API keys, tokens, passwords, private keys)
 - Staged files are all in expected brain paths
@@ -204,7 +204,7 @@ Push-projectshared owns the full commit (does NOT invoke `/commit`). Follows the
 2. Display repo name and remote URL, confirm with user
 3. Stage brain files:
    ```bash
-   git add project_files/brain/ -- ':!project_files/brain/_Docs'
+   git add project_files/brain/ -- ':!project_files/brain/_AgentTasks'
    ```
 4. Commit with Conventional Commits format:
    - Suggested: `docs(brain): sync shared context YYYY-MM-DD`
@@ -276,6 +276,6 @@ Symlinks: restored
 - Always set assume-unchanged after restoring symlinks
 - If interrupted between dereference and restore: `_setup.sh` detects real files and recreates symlinks
 - Shared files: CLAUDE.md, session.md, _Status.md, memory/, DevLog/, Workbench/
-- Never push _Docs — those are Brain-only content
+- Never push _AgentTasks — those are Brain-only content
 - Push-projectshared owns its own git commit — never invoke `/commit`
 - assume-unchanged flags remain SET during git pull; clear only after pull completes

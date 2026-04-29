@@ -29,7 +29,7 @@ Everything in the local Brain that is NOT in the private exclusion list. BrainSh
 - `_projects.conf` — always private
 - `_sync.conf` — always private
 - `_DevLog/` (root-level) — always private
-- `_Docs/` — plans, reports, workflow logs are local to each vault
+- `_AgentTasks/` — plans, reports, workflow logs are local to each vault
 - `_Dashboard.md` — Obsidian dashboard, machine-specific
 - `_ClaudeSettings/<slug>/` — per-project CLAUDE.md files are private (only `global/` and `brain/` are shared)
 - `_Memory/brain/user_*.md` — identity memories are private (user_role.md, user_profile.md, etc.)
@@ -105,14 +105,14 @@ Use an exclusion pattern instead of a hardcoded shared-paths list. This detects 
 
 **Private path exclusion pattern** (never pushed — matches the "What is NEVER pushed" list):
 ```bash
-PRIVATE_PATTERN="^(_Profile/|_Agents/|_projects\.conf$|_sync\.conf$|_DevLog/|_Docs/|_Dashboard\.md$|_ActiveSessions/|_Workbench/|_ClaudeSettings/(?!global/|brain/)|_Memory/(?!brain/)|_Memory/brain/user_|\.claude/|\.git/)"
+PRIVATE_PATTERN="^(_Profile/|_Agents/|_projects\.conf$|_sync\.conf$|_DevLog/|_AgentTasks/|_Dashboard\.md$|_ActiveSessions/|_Workbench/|_ClaudeSettings/(?!global/|brain/)|_Memory/(?!brain/)|_Memory/brain/user_|\.claude/|\.git/)"
 
 # Portable filter: BSD grep (macOS default) lacks -P. Use awk — POSIX, identical on macOS and Linux.
 # Reads path list from stdin, writes non-private paths to stdout.
 # Keep in sync with PRIVATE_PATTERN above.
 filter_private() {
   awk '
-    /^(_Profile|_Agents|_DevLog|_Docs|_ActiveSessions|_Workbench|\.claude|\.git)\// { next }
+    /^(_Profile|_Agents|_DevLog|_AgentTasks|_ActiveSessions|_Workbench|\.claude|\.git)\// { next }
     /^(_projects\.conf|_sync\.conf|_Dashboard\.md)$/ { next }
     /^_ClaudeSettings\// && !/^_ClaudeSettings\/(global|brain)\// { next }
     /^_Memory\/brain\/user_/ { next }
@@ -309,7 +309,7 @@ Verify no private paths in the push directory. Use the **Bash** tool to run:
 
 ```bash
 cd "$PUSH_TMP"
-VIOLATION=$(git diff --name-only HEAD | grep -E "^(_Workbench/|_Profile/|_Agents/|_ActiveSessions/|_projects\.conf|_DevLog/|_Docs/|_Dashboard\.md$|_sync\.conf$|_ClaudeSettings/(?!global/|brain/)|_Memory/brain/user_)" || true)
+VIOLATION=$(git diff --name-only HEAD | grep -E "^(_Workbench/|_Profile/|_Agents/|_ActiveSessions/|_projects\.conf|_DevLog/|_AgentTasks/|_Dashboard\.md$|_sync\.conf$|_ClaudeSettings/(?!global/|brain/)|_Memory/brain/user_)" || true)
 if [ -n "$VIOLATION" ]; then
   echo ""
   echo "SAFETY VIOLATION: Private paths detected in push:"
@@ -426,7 +426,7 @@ echo "Your partner can /pull-brainshared to get your changes."
 
 ## Rules
 
-- Never push `_Workbench/`, `_Profile/`, `_Agents/`, `_ActiveSessions/`, `_projects.conf`, `_DevLog/`, `_Docs/`, `_Dashboard.md`, `_sync.conf`, `_ClaudeSettings/<slug>/` (per-project) to BrainShared — enforce with safety check
+- Never push `_Workbench/`, `_Profile/`, `_Agents/`, `_ActiveSessions/`, `_projects.conf`, `_DevLog/`, `_AgentTasks/`, `_Dashboard.md`, `_sync.conf`, `_ClaudeSettings/<slug>/` (per-project) to BrainShared — enforce with safety check
 - MEMORY.md index files are always auto-merged — never a conflict question
 - If the safety check finds private paths, abort immediately
 - Maximum 2 push retry attempts on race condition

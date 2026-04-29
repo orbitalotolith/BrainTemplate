@@ -1,6 +1,6 @@
 # Security Audit — Report Template
 
-Report file location: `$BRAIN_ROOT/_Docs/<slug>/Reports/security-YYYY-MM-DD.md`
+Report file location: `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/security-YYYY-MM-DD.md`
 
 ---
 

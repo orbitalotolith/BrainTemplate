@@ -70,7 +70,7 @@ Use the **Agent** tool to dispatch up to 3 Explore agents in parallel, distribut
 
 ##### B. Security & Secrets
 
-**Before running security checks:** Read `$BRAIN_ROOT/_Docs/<slug>/Reports/audit-context.json` and the most recent `$BRAIN_ROOT/_Docs/<slug>/Reports/security-*.md` (check today's date first, then fall back to most recent).
+**Before running security checks:** Read `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/audit-context.json` and the most recent `$BRAIN_ROOT/_AgentTasks/<slug>/Reports/security-*.md` (check today's date first, then fall back to most recent).
 
 **If a security audit report exists from the last 7 days:**
 - **Skip** secrets-in-code scanning (SEC- findings already cover this thoroughly)
