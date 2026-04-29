@@ -78,35 +78,23 @@ read -p "Your name: " USER_NAME
 read -p "Practice area (e.g., 'corporate transactions', 'litigation'): " PRACTICE_AREA
 read -p "Typical matter types (comma-separated, e.g., 'contract,advisory'): " MATTER_TYPES
 
-# Seed _Profile/index.md (skip if exists to preserve user edits on re-run)
+# Seed _Profile/index.md from Profile-skeleton.md (skip if exists to preserve user edits on re-run)
 if [ -f "$BRAIN/_Profile/index.md" ]; then
   echo "  ⊘ _Profile/index.md already exists — keeping user edits (delete to reseed)"
 else
-  cat > "$BRAIN/_Profile/index.md" <<EOF
----
-title: User Profile
-type: profile
-created: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
----
-
-# Profile
-
-**Name:** $USER_NAME
-**Role:** Lawyer / legal practitioner
-**Practice area:** $PRACTICE_AREA
-**Typical matter types:** $MATTER_TYPES
-
-## Working style
-
-(populate as you discover preferences — see _Profile/ subfiles for details)
-
-## Tools
-
-- Brain (this vault) — local persistent memory + project context for AI work
-- Claude Code — terminal-based AI assistant
-- Claude.ai — web-based chat with project context
-EOF
-  echo "  ✓ _Profile/index.md seeded"
+  if [ ! -f "$BRAIN/Profile-skeleton.md" ]; then
+    echo "FATAL: Profile-skeleton.md not found at $BRAIN/Profile-skeleton.md. Lawyer payload may be incomplete."
+    exit 1
+  fi
+  NOW=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+  PROFILE_CONTENT=$(cat "$BRAIN/Profile-skeleton.md")
+  PROFILE_CONTENT="${PROFILE_CONTENT//\{\{CREATED\}\}/$NOW}"
+  PROFILE_CONTENT="${PROFILE_CONTENT//\{\{USER_NAME\}\}/$USER_NAME}"
+  PROFILE_CONTENT="${PROFILE_CONTENT//\{\{PRACTICE_AREA\}\}/$PRACTICE_AREA}"
+  PROFILE_CONTENT="${PROFILE_CONTENT//\{\{MATTER_TYPES\}\}/$MATTER_TYPES}"
+  printf '%s\n' "$PROFILE_CONTENT" > "$BRAIN/_Profile/index.md"
+  rm -f "$BRAIN/Profile-skeleton.md"  # skeleton consumed; remove to keep vault clean
+  echo "  ✓ _Profile/index.md seeded from Profile-skeleton.md"
 fi
 echo ""
 

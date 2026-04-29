@@ -30,4 +30,4 @@ This vault enforces source-citation for all factual claims. AI output that asser
 
 - `_Profile/identity.md`, `_Profile/preferences.md` — populate over time
 - `CLAUDE.md` — Brain operating rules and anti-hallucination policy
-- `_HowThisWorks.md` — vault architecture
+- `HowThisWorks.md` — vault architecture (lawyer persona)
