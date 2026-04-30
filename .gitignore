@@ -22,3 +22,7 @@ __pycache__/
 
 # Machine-local sync state
 _sync.conf
+
+# Per-instance Brain state (do not ship from template)
+_ActiveSessions/brain/
+_DevLog/brain/

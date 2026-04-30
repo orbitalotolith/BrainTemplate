@@ -28,7 +28,6 @@ Three documents guide this system. Each has a distinct audience:
 │   ├── WordOfWisdom.md                 <- foundational AI behavior principles
 │   ├── _HowThisWorks.md               <- THIS FILE (AI agent guide)
 │   ├── key-to-dev.md                   <- human workflow quick reference
-│   ├── _Dashboard.md                   <- Dataview project overview
 │   ├── _projects.conf                  <- single source of truth for all project mappings
 │   ├── _setup.sh                       <- symlink + Claude config setup for new machines
 │   ├── _health-check.sh               <- vault integrity verification script
@@ -164,7 +163,6 @@ These files must exist for the system to function:
 | `WordOfWisdom.md` | AI behavior principles | Write principles that match the user's values |
 | `_HowThisWorks.md` | This file — vault architecture | Copy this template, adapt to the user's setup |
 | `key-to-dev.md` | Human workflow reference | Write after skills are configured |
-| `_Dashboard.md` | Obsidian Dataview overview | Create with Dataview queries for project status |
 | `_projects.conf` | Single source of truth for project mappings | One `SLUG|CATEGORY|CODE_PATH|COLLAB` line per project |
 | `_setup.sh` | New-machine setup script | Reads `_projects.conf`, creates symlinks (ActiveSessions, Workbench, memories, Claude config) |
 | `_health-check.sh` | Vault integrity checks | Reads `_projects.conf`, validates symlinks, memories, coverage |
