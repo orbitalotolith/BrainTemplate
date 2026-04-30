@@ -1,0 +1,25 @@
+# Lawyer persona vocabulary — maps generic Brain terms to lawyer-specific terms.
+# Read by skills and docs to render appropriately.
+
+persona: lawyer
+
+terms:
+  project: matter
+  projects: matters
+  repository: ""              # not applicable
+  repo: ""                    # not applicable
+  build: ""                   # not applicable
+  test: review                # in lawyer context, "test" maps loosely to "review"
+  deploy: ""                  # not applicable
+  refactor: ""                # not applicable
+
+paths:
+  external_root: "~/Legal"
+  registry_file: "_matters.conf"
+  log_dir: "_Log"
+
+units:
+  primary: matter
+  client: client
+  document: document
+  deliverable: ""             # lawyer doesn't deliver AI output to client (anti-hallucination policy)

@@ -1,11 +1,84 @@
 #!/bin/bash
-# Run after cloning Brain. Clone code repos first, then run this.
-# Mac and Linux only.
+# Brain vault setup — persona-aware (Plan 1 MVP).
+# Run after cloning. Mac and Linux only.
 set -e
 
 BRAIN="${BRAIN_ROOT:-$(cd "$(dirname "$0")" && pwd)}"
 DEV="$HOME/Development"
+LEGAL="$HOME/Legal"
 CONF="$BRAIN/_projects.conf"
+MATTERS_CONF="$BRAIN/_matters.conf"
+PERSONA_CONF="$BRAIN/_persona.conf"
+PERSONAS_DIR="$BRAIN/_Personas"
+
+# --- Persona detection / prompt ---
+
+if [ -f "$PERSONA_CONF" ]; then
+  PERSONA=$(grep -E "^persona:" "$PERSONA_CONF" | head -1 | cut -d: -f2 | xargs)
+  echo "-- Persona: $PERSONA (from existing _persona.conf) --"
+elif [ -d "$PERSONAS_DIR" ]; then
+  echo ""
+  echo "Welcome to Brain. What kind of work will you do here?"
+  echo ""
+  echo "  1) developer  — code projects, git repos, ~/Development/ external folders"
+  echo "  2) lawyer     — legal practice, contract review, ~/Legal/ external matters"
+  echo "  3) generalist — general use (Plan 3, not yet implemented)"
+  echo ""
+  read -p "Choice (1/2/3): " CHOICE
+  case "$CHOICE" in
+    1) PERSONA="developer"; PROJECT_TERM="project"; EXTERNAL_DEFAULT="mandatory" ;;
+    2) PERSONA="lawyer"; PROJECT_TERM="matter"; EXTERNAL_DEFAULT="optional" ;;
+    3) echo "FATAL: generalist persona not yet implemented (Plan 3). Pick 1 or 2."; exit 1 ;;
+    *) echo "FATAL: invalid choice '$CHOICE'. Pick 1, 2, or 3."; exit 1 ;;
+  esac
+
+  if [ ! -d "$PERSONAS_DIR/$PERSONA" ]; then
+    echo "FATAL: persona directory $PERSONAS_DIR/$PERSONA not found. Cannot proceed."
+    exit 1
+  fi
+
+  # Unpack persona contents to vault root
+  echo "-- Unpacking $PERSONA persona --"
+  cp -R "$PERSONAS_DIR/$PERSONA/." "$BRAIN/"
+  echo "  ✓ Persona contents copied to vault root"
+
+  # Remove _Personas/ to keep vault clean
+  rm -rf "$PERSONAS_DIR"
+  echo "  ✓ _Personas/ directory removed"
+
+  # Write _persona.conf (template_version quoted to avoid YAML float-parse drift)
+  cat > "$PERSONA_CONF" <<EOF
+persona: $PERSONA
+project_term: $PROJECT_TERM
+external_path_default: $EXTERNAL_DEFAULT
+created: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+template_version: "1.0"
+EOF
+  echo "  ✓ _persona.conf written"
+  echo ""
+else
+  echo "FATAL: no _Personas/ directory and no _persona.conf. Cannot determine persona."
+  exit 1
+fi
+
+# --- Persona-specific setup branch ---
+
+case "$PERSONA" in
+  developer)
+    # Existing developer setup logic continues below — unchanged.
+    ;;
+  lawyer)
+    # Lawyer setup: skip code-repo symlinks, run lawyer prompts, exit.
+    bash "$BRAIN/_lawyer-setup.sh"
+    exit 0
+    ;;
+  *)
+    echo "FATAL: persona '$PERSONA' has no setup logic. Plan 3 will add generalist."
+    exit 1
+    ;;
+esac
+
+# --- Developer-persona setup (existing flow) ---
 
 if [ ! -f "$CONF" ]; then
   echo "FATAL: $CONF not found. Cannot proceed."
