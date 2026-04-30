@@ -286,6 +286,30 @@ setup_claude
 
 echo ""
 echo "-- Brain repo CLAUDE.md + settings.json --"
+# Ensure _ClaudeSettings/brain/ targets exist before symlinking. The brain slug
+# may not yet be in _projects.conf (registration happens via /setup-new-brain),
+# so the SLUGS loop above won't have created these. Without this block, the
+# Brain* CLAUDE.md symlink dangles on a fresh template clone.
+mkdir -p "$BRAIN/_ClaudeSettings/brain"
+if [ ! -f "$BRAIN/_ClaudeSettings/brain/CLAUDE.md" ]; then
+  cat > "$BRAIN/_ClaudeSettings/brain/CLAUDE.md" <<'EOF'
+# Brain Project Instructions
+
+Project-level instructions for working on this Brain vault itself.
+
+Global Brain rules (Word of Wisdom, persistence tiers, Knowledge Base rules)
+live in `_ClaudeSettings/global/CLAUDE.md` and load automatically via
+`~/.claude/CLAUDE.md`. Do not duplicate them here.
+
+Add brain-specific guidance below as it emerges — e.g. conventions for
+editing skills under `_Personas/<persona>/_Skills/`, updating `_setup.sh`
+or `_HowThisWorks.md`, or working with `_projects.conf`.
+EOF
+fi
+if [ ! -f "$BRAIN/_ClaudeSettings/brain/settings.json" ]; then
+  echo "{}" > "$BRAIN/_ClaudeSettings/brain/settings.json"
+fi
+
 # Brain* repos point to their own project CLAUDE.md (global loads separately via ~/.claude/)
 for brain_repo in "$DEV"/Brain*; do
   [ -d "$brain_repo/.git" ] || continue

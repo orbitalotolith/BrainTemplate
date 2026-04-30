@@ -1,1 +1,1 @@
-_ClaudeSettings/global/CLAUDE.md
+_ClaudeSettings/brain/CLAUDE.md
